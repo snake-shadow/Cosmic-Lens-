@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
-import { fetchCelestialInfo } from './services/geminiService'
+import { fetchCelestialInfo } from '../services/geminiService'
 
 const App = () => {
   const [data, setData] = useState('Loading cosmic data...')
