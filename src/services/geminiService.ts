@@ -1,5 +1,29 @@
 import { GoogleGenAI, Type } from "@google/genai";
-import { CelestialData, GraphNode } from "../types";
+
+export type CelestialData = {
+  name: string;
+  type: string;
+  distance: string;
+  mass: string;
+  temperature: string;
+  description: string;
+  funFact: string;
+  discoveryYear?: string;
+  coordinates: {
+    x: number;
+    y: number;
+  };
+};
+
+export type GraphNode = {
+  name: string;
+  type: string;
+  x: number;
+  y: number;
+  z: number;
+  color: string;
+};
+
 
 // --- MOCK DATA FOR GITHUB PAGES (SAFE MODE) ---
 // This ensures the app works beautifully even without an API key (e.g. on public demo)
@@ -99,11 +123,12 @@ const GENERIC_MOCK_RESPONSE: CelestialData = {
 
 // --- GEMINI SERVICE ---
 
-const apiKey = process.env.API_KEY;
+// On GitHub Pages we do not use a live API key.
+// The app will run in “safe mode” and use mock data instead.
+const apiKey: string | null = null;
 let ai: GoogleGenAI | null = null;
-if (apiKey) {
-  ai = new GoogleGenAI({ apiKey });
-}
+// If you later add a backend, you can initialize GoogleGenAI there.
+
 
 const modelName = 'gemini-2.5-flash';
 
