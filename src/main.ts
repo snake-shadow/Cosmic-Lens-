@@ -1,15 +1,24 @@
-const app = document.querySelector<HTMLDivElement>("#root");
+import React, { useState, useEffect } from 'react'
+import { createRoot } from 'react-dom/client'
+import './index.css'
+import { fetchCelestialInfo } from './services/geminiService'
 
-if (app) {
-  app.innerHTML = `
-    <main style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#020617;color:white;font-family:system-ui, sans-serif;">
-      <div style="text-align:center;max-width:480px;">
-        <h1 style="font-size:2rem;margin-bottom:0.5rem;">Cosmic Lens</h1>
-        <p style="opacity:0.8;margin-bottom:1.5rem;">
-          Static demo is live. Interactive Gemini-powered features are disabled in this GitHub Pages build and use mock cosmic data only.
-        </p>
+const App = () => {
+  const [data, setData] = useState('Loading cosmic data...')
+  
+  useEffect(() => {
+    fetchCelestialInfo().then(setData).catch(() => setData('Mock data ready!'))
+  }, [])
+  
+  return (
+    <div className="p-8 text-white bg-gradient-to-br from-black to-purple-900 min-h-screen">
+      <h1 className="text-4xl font-bold mb-8">Cosmic Lens</h1>
+      <div className="bg-white/10 p-6 rounded-xl max-w-md mx-auto">
+        <p className="text-lg mb-4">{data}</p>
+        <p className="text-sm text-purple-300">Mock mode active - no API key needed</p>
       </div>
-    </main>
-  `;
+    </div>
+  )
 }
 
+createRoot(document.getElementById('root')!).render(<App />)
