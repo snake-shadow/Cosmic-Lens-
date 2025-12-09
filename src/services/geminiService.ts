@@ -126,7 +126,8 @@ const GENERIC_MOCK_RESPONSE: CelestialData = {
 // On GitHub Pages we do not use a live API key.
 // The app will run in “safe mode” and use mock data instead.
 const apiKey: string | null = null;
-let ai: GoogleGenAI | null = null;
+// Loosen the type so TypeScript stops treating it as never
+let ai: any = null;
 // If you later add a backend, you can initialize GoogleGenAI there.
 
 
