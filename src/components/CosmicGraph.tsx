@@ -6,16 +6,15 @@ import { Search } from 'lucide-react';
 interface CosmicGraphProps {
   data: GraphNode[];
   onNodeClick: (node: GraphNode) => void;
+  onNodeHover: (node: GraphNode | null) => void;
 }
 
-const CustomTooltip = ({ active, payload }: any) => {
+const MinimalTooltip = ({ active, payload }: any) => {
   if (active && payload && payload.length) {
     const data = payload[0].payload;
     return (
-      <div className="bg-space-800/90 backdrop-blur-md border border-neon-blue/30 p-3 rounded-lg shadow-[0_0_15px_rgba(0,243,255,0.3)] z-50">
-        <p className="font-orbitron text-neon-blue text-lg font-bold">{data.name}</p>
-        <p className="font-rajdhani text-gray-300 text-sm">{data.type}</p>
-        <div className="text-xs text-gray-500 mt-1">Click to analyze</div>
+      <div className="bg-black/80 backdrop-blur-sm border border-white/20 px-2 py-1 rounded text-xs font-orbitron tracking-wider text-white">
+        {data.name}
       </div>
     );
   }
@@ -155,11 +154,11 @@ const CustomShape = (props: any) => {
   );
 };
 
-const CosmicGraph: React.FC<CosmicGraphProps> = ({ data, onNodeClick }) => {
+const CosmicGraph: React.FC<CosmicGraphProps> = ({ data, onNodeClick, onNodeHover }) => {
   return (
     <div className="w-full h-full flex flex-col relative bg-space-900/30 rounded-2xl border border-white/5 backdrop-blur-sm overflow-hidden">
       {/* Header - Fixed Height */}
-      <div className="p-4 z-10 flex-none">
+      <div className="p-4 z-10 flex-none absolute top-0 left-0 pointer-events-none">
         <h3 className="font-orbitron text-white/70 text-sm tracking-widest flex items-center gap-2">
           <Search size={14} className="text-neon-purple"/>
           SECTOR SCAN: DEEP FIELD
@@ -174,8 +173,17 @@ const CosmicGraph: React.FC<CosmicGraphProps> = ({ data, onNodeClick }) => {
               <XAxis type="number" dataKey="x" name="Distance" hide domain={[0, 100]} />
               <YAxis type="number" dataKey="y" name="Energy" hide domain={[0, 100]} />
               <ZAxis type="number" dataKey="z" range={[100, 1200]} />
-              <Tooltip content={<CustomTooltip />} cursor={{ strokeDasharray: '3 3', stroke: '#ffffff33' }} />
-              <Scatter name="Celestial Objects" data={data} onClick={(e: any) => onNodeClick(e.payload)} shape={<CustomShape />}>
+              <Tooltip content={<MinimalTooltip />} cursor={{ strokeDasharray: '3 3', stroke: '#ffffff33' }} />
+              <Scatter 
+                name="Celestial Objects" 
+                data={data} 
+                onClick={(e: any) => onNodeClick(e.payload)} 
+                onMouseEnter={(e: any) => {
+                   if (e && e.payload) onNodeHover(e.payload);
+                }}
+                onMouseLeave={() => onNodeHover(null)}
+                shape={<CustomShape />}
+              >
                 {data.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={entry.color} />
                 ))}

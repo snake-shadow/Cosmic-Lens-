@@ -20,4 +20,6 @@ export interface GraphNode {
   y: number;
   z: number; // Size/Importance
   color: string;
+  description?: string;
+  distance?: string;
 }

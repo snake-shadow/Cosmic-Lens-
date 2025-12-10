@@ -3,6 +3,7 @@ import { Search, Sparkles, Rocket } from 'lucide-react';
 import Background from './components/Background';
 import CosmicGraph from './components/CosmicGraph';
 import InfoPanel from './components/InfoPanel';
+import HUD from './components/HUD';
 import { fetchCelestialInfo, fetchInterestingNodes } from './services/geminiService';
 import { CelestialData, GraphNode } from './types';
 
@@ -13,6 +14,7 @@ const App: React.FC = () => {
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [graphNodes, setGraphNodes] = useState<GraphNode[]>([]);
   const [graphLoading, setGraphLoading] = useState(true);
+  const [hoveredNode, setHoveredNode] = useState<GraphNode | null>(null);
 
   // Initial Data Load
   useEffect(() => {
@@ -46,7 +48,9 @@ const App: React.FC = () => {
            x: data.coordinates.x,
            y: data.coordinates.y,
            z: 30, // Default size
-           color: data.type.toLowerCase().includes('pulsar') ? '#00ff9d' : '#00f3ff'
+           color: data.type.toLowerCase().includes('pulsar') ? '#00ff9d' : '#00f3ff',
+           description: data.description,
+           distance: data.distance
          }
        ]);
     }
@@ -55,95 +59,95 @@ const App: React.FC = () => {
   };
 
   const handleNodeClick = (node: GraphNode) => {
+    // We still support click for deep dives if user wants more than the HUD offers
     initiateSearch(node.name);
   };
 
   return (
-    <div className="relative min-h-screen text-white font-rajdhani overflow-hidden selection:bg-neon-pink selection:text-white">
+    <div className="relative min-h-screen text-white font-rajdhani overflow-hidden selection:bg-neon-pink selection:text-white flex flex-col">
       <Background />
 
-      <div className="container mx-auto px-4 py-8 relative z-10 flex flex-col h-screen max-h-screen">
+      {/* Header - Fixed Top */}
+      <header className="flex-none container mx-auto px-4 py-4 flex flex-col md:flex-row items-center justify-between gap-4 animate-float z-20">
+        <div className="flex items-center gap-3">
+            <div className="bg-neon-blue/20 p-2 rounded-lg border border-neon-blue/50">
+              <Rocket className="text-neon-blue" size={24} />
+            </div>
+            <div>
+              <h1 className="text-3xl font-orbitron font-bold text-transparent bg-clip-text bg-gradient-to-r from-neon-blue via-white to-neon-purple">
+                COSMIC LENS
+              </h1>
+            </div>
+        </div>
+
+        {/* Search Bar */}
+        <form onSubmit={handleSearch} className="w-full max-w-md relative group">
+          <button 
+            type="submit"
+            className="absolute left-2 top-1.5 bg-neon-blue/20 hover:bg-neon-blue text-neon-blue hover:text-black p-1.5 rounded-full transition-all z-10"
+          >
+            <Sparkles size={16} />
+          </button>
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search database..."
+            className="w-full bg-space-800/50 backdrop-blur-md border border-neon-blue/30 text-white pl-12 pr-4 py-2 rounded-full focus:outline-none focus:border-neon-blue focus:shadow-[0_0_20px_rgba(0,243,255,0.3)] transition-all font-orbitron text-sm tracking-wide"
+          />
+        </form>
+      </header>
+
+      {/* Main Layout - Split View */}
+      <div className="flex-1 flex overflow-hidden relative z-10">
         
-        {/* Header */}
-        <header className="flex flex-col md:flex-row items-center justify-between mb-8 gap-4 animate-float">
-          <div className="flex items-center gap-3">
-             <div className="bg-neon-blue/20 p-2 rounded-lg border border-neon-blue/50">
-                <Rocket className="text-neon-blue" size={32} />
-             </div>
-             <div>
-                <h1 className="text-4xl font-orbitron font-bold text-transparent bg-clip-text bg-gradient-to-r from-neon-blue via-white to-neon-purple">
-                  COSMIC LENS
-                </h1>
-                <p className="text-neon-purple text-sm tracking-[0.3em] opacity-80 uppercase">Interactive Explorer</p>
-             </div>
-          </div>
-
-          {/* Search Bar */}
-          <form onSubmit={handleSearch} className="w-full max-w-md relative group">
-            <button 
-              type="submit"
-              className="absolute left-2 top-1.5 bg-neon-blue/20 hover:bg-neon-blue text-neon-blue hover:text-black p-1.5 rounded-full transition-all z-10"
-            >
-              <Sparkles size={16} />
-            </button>
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search for anomaly (e.g., 'Magnetar', 'Kepler-22b')..."
-              className="w-full bg-space-800/50 backdrop-blur-md border border-neon-blue/30 text-white pl-12 pr-4 py-3 rounded-full focus:outline-none focus:border-neon-blue focus:shadow-[0_0_20px_rgba(0,243,255,0.3)] transition-all font-orbitron text-sm tracking-wide"
-            />
-          </form>
-        </header>
-
-        {/* Main Content Area */}
-        <main className="flex-1 flex flex-col items-center justify-center relative w-full overflow-hidden">
+        {/* Left/Center - Graph Area */}
+        <main className="flex-1 flex flex-col p-4 relative min-w-0">
           
-          <div className="w-full h-full flex flex-col gap-6">
-            <div className="flex justify-between items-end px-2">
-                <h2 className="font-orbitron text-xl text-white/80">Local Cluster Visualization</h2>
-                <div className="text-xs text-white/40 font-mono">
-                    STATS: {graphNodes.length} OBJECTS TRACKED
+          {graphLoading ? (
+                <div className="flex-1 w-full bg-space-900/30 rounded-2xl border border-white/5 backdrop-blur-sm flex items-center justify-center">
+                  <div className="flex flex-col items-center">
+                        <div className="w-12 h-12 border-2 border-neon-purple border-t-transparent rounded-full animate-spin mb-4"></div>
+                        <p className="font-orbitron text-sm tracking-widest text-neon-purple animate-pulse">SCANNING SECTOR...</p>
+                  </div>
                 </div>
-            </div>
+          ) : (
+              <div className="flex-1 w-full relative h-full flex flex-col gap-4">
+                  <CosmicGraph 
+                    data={graphNodes} 
+                    onNodeClick={handleNodeClick} 
+                    onNodeHover={setHoveredNode} 
+                  />
+                  
+                  {/* Category Filter Quick Links */}
+                  <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
+                    {['Stars', 'Nebulae', 'Black Holes', 'Exoplanets'].map((category) => (
+                        <button 
+                          key={category}
+                          onClick={() => initiateSearch(category)}
+                          className="whitespace-nowrap bg-space-800/60 hover:bg-neon-blue/20 border border-white/10 hover:border-neon-blue/50 px-4 py-2 rounded-lg transition-all text-xs font-orbitron text-neon-blue hover:text-white"
+                        >
+                          {category}
+                        </button>
+                    ))}
+                  </div>
 
-            {graphLoading ? (
-                 <div className="flex-1 w-full bg-space-900/30 rounded-2xl border border-white/5 backdrop-blur-sm flex items-center justify-center">
-                    <div className="flex flex-col items-center">
-                         <div className="w-12 h-12 border-2 border-neon-purple border-t-transparent rounded-full animate-spin mb-4"></div>
-                         <p className="font-orbitron text-sm tracking-widest text-neon-purple animate-pulse">SCANNING SECTOR...</p>
-                    </div>
-                 </div>
-            ) : (
-                <div className="flex-1 w-full relative min-h-[400px]">
-                    <CosmicGraph data={graphNodes} onNodeClick={handleNodeClick} />
-                </div>
-            )}
-            
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pb-4">
-                 {['Stars', 'Nebulae', 'Black Holes', 'Pulsars'].map((category) => (
-                     <button 
-                        key={category}
-                        onClick={() => initiateSearch(category)}
-                        className="bg-space-800/40 hover:bg-neon-blue/10 border border-white/10 hover:border-neon-blue/50 p-4 rounded-xl transition-all group text-left"
-                     >
-                        <h3 className="font-orbitron text-neon-blue group-hover:text-white transition-colors">{category}</h3>
-                        <p className="text-xs text-gray-400 mt-1">View database entries</p>
-                     </button>
-                 ))}
-            </div>
-            
-             {/* Bottom Instructional Text */}
-             <div className="w-full text-center pb-2 pointer-events-none">
-                <p className="font-orbitron text-xs text-neon-blue/60 tracking-[0.2em] animate-pulse">
-                   HOVER YOUR MOUSE TO EXPLORE THE UNIVERSE
-                </p>
-             </div>
-          </div>
+                  {/* Instructional Overlay */}
+                  <div className="absolute bottom-16 left-0 w-full text-center pointer-events-none md:hidden">
+                    <p className="font-orbitron text-[10px] text-neon-blue/60 tracking-[0.2em] animate-pulse bg-black/40 inline-block px-2 rounded">
+                      TAP NODES TO SCAN
+                    </p>
+                  </div>
+              </div>
+          )}
         </main>
+
+        {/* Right - HUD Panel */}
+        <HUD node={hoveredNode} />
+      
       </div>
 
-      {/* Detail Panel Overlay */}
+      {/* Detail Panel Overlay (Only for Deep Dives/Search) */}
       {isPanelOpen && (
         <InfoPanel 
           data={activeData} 

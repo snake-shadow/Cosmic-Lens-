@@ -5,26 +5,26 @@ import { CelestialData, GraphNode } from "../types";
 // This ensures the app works beautifully even without an API key (e.g. on public demo)
 
 const MOCK_NODES: GraphNode[] = [
-  { name: "Betelgeuse", type: "Red Supergiant", x: 20, y: 80, z: 40, color: "#ff4500" },
-  { name: "Sirius B", type: "White Dwarf", x: 10, y: 20, z: 15, color: "#ffffff" },
-  { name: "Sagittarius A*", type: "Supermassive Black Hole", x: 90, y: 90, z: 50, color: "#bc13fe" },
-  { name: "Pillars of Creation", type: "Nebula", x: 60, y: 50, z: 45, color: "#00f3ff" },
-  { name: "Crab Pulsar", type: "Pulsar", x: 75, y: 65, z: 20, color: "#00ff9d" },
-  { name: "Andromeda", type: "Galaxy", x: 85, y: 30, z: 60, color: "#d8b4fe" },
-  { name: "Kepler-186f", type: "Exoplanet", x: 40, y: 45, z: 18, color: "#34d399" },
-  { name: "Ton 618", type: "Quasar", x: 95, y: 95, z: 55, color: "#fbbf24" },
-  { name: "Horsehead Nebula", type: "Nebula", x: 55, y: 60, z: 42, color: "#f472b6" },
-  { name: "Proxima Centauri", type: "Red Dwarf", x: 5, y: 10, z: 12, color: "#ef4444" },
-  { name: "TRAPPIST-1e", type: "Exoplanet", x: 35, y: 55, z: 16, color: "#60a5fa" },
-  { name: "Whirlpool Galaxy", type: "Galaxy", x: 80, y: 25, z: 58, color: "#818cf8" },
-  { name: "Cygnus X-1", type: "Black Hole", x: 70, y: 85, z: 35, color: "#a855f7" },
-  { name: "Vela Pulsar", type: "Pulsar", x: 65, y: 70, z: 18, color: "#22d3ee" },
-  { name: "Oort Cloud", type: "Cometary Cloud", x: 15, y: 5, z: 50, color: "#94a3b8" },
-  { name: "Alpha Centauri A", type: "Star", x: 8, y: 82, z: 25, color: "#FDB813" },
-  { name: "Ring Nebula", type: "Nebula", x: 62, y: 45, z: 38, color: "#2E8B57" },
-  { name: "Kepler-22b", type: "Exoplanet", x: 45, y: 50, z: 22, color: "#20B2AA" },
-  { name: "UY Scuti", type: "Hypergiant", x: 30, y: 95, z: 58, color: "#FF6347" },
-  { name: "Halley's Comet", type: "Comet", x: 12, y: 5, z: 10, color: "#A9A9A9" }
+  { name: "Betelgeuse", type: "Red Supergiant", x: 20, y: 80, z: 40, color: "#ff4500", distance: "642 LY", description: "A red supergiant nearing the end of its life, expected to go supernova." },
+  { name: "Sirius B", type: "White Dwarf", x: 10, y: 20, z: 15, color: "#ffffff", distance: "8.6 LY", description: "The faint white dwarf companion to the brightest star in the night sky." },
+  { name: "Sagittarius A*", type: "Supermassive Black Hole", x: 90, y: 90, z: 50, color: "#bc13fe", distance: "26,000 LY", description: "The monster at the heart of the Milky Way, holding the galaxy together." },
+  { name: "Pillars of Creation", type: "Nebula", x: 60, y: 50, z: 45, color: "#00f3ff", distance: "7,000 LY", description: "Iconic elephant trunks of interstellar gas and dust in the Eagle Nebula." },
+  { name: "Crab Pulsar", type: "Pulsar", x: 75, y: 65, z: 20, color: "#00ff9d", distance: "6,500 LY", description: "A neutron star spinning 30 times per second, remnant of a supernova." },
+  { name: "Andromeda", type: "Galaxy", x: 85, y: 30, z: 60, color: "#d8b4fe", distance: "2.5M LY", description: "Our Milky Way's largest neighbor, on a collision course with us." },
+  { name: "Kepler-186f", type: "Exoplanet", x: 40, y: 45, z: 18, color: "#34d399", distance: "582 LY", description: "The first Earth-size planet found in the habitable zone of another star." },
+  { name: "Ton 618", type: "Quasar", x: 95, y: 95, z: 55, color: "#fbbf24", distance: "10.4B LY", description: "An ultramassive black hole powering one of the brightest objects in the universe." },
+  { name: "Horsehead Nebula", type: "Nebula", x: 55, y: 60, z: 42, color: "#f472b6", distance: "1,375 LY", description: "A dark nebula in Orion that famously resembles a horse's head." },
+  { name: "Proxima Centauri", type: "Red Dwarf", x: 5, y: 10, z: 12, color: "#ef4444", distance: "4.24 LY", description: "The closest known star to the Sun, a small, low-mass red dwarf." },
+  { name: "TRAPPIST-1e", type: "Exoplanet", x: 35, y: 55, z: 16, color: "#60a5fa", distance: "39 LY", description: "One of seven Earth-sized planets in the TRAPPIST-1 system, likely rocky." },
+  { name: "Whirlpool Galaxy", type: "Galaxy", x: 80, y: 25, z: 58, color: "#818cf8", distance: "23M LY", description: "A classic spiral galaxy interacting with a smaller companion galaxy." },
+  { name: "Cygnus X-1", type: "Black Hole", x: 70, y: 85, z: 35, color: "#a855f7", distance: "6,070 LY", description: "The first black hole ever discovered, locking in a dance with a blue supergiant." },
+  { name: "Vela Pulsar", type: "Pulsar", x: 65, y: 70, z: 18, color: "#22d3ee", distance: "959 LY", description: "A glitching pulsar that results from a massive supernova explosion." },
+  { name: "Oort Cloud", type: "Cometary Cloud", x: 15, y: 5, z: 50, color: "#94a3b8", distance: "2,000 AU", description: "The theoretical shell of icy objects surrounding our entire solar system." },
+  { name: "Alpha Centauri A", type: "Star", x: 8, y: 82, z: 25, color: "#FDB813", distance: "4.37 LY", description: "The primary star of the closest star system to our own." },
+  { name: "Ring Nebula", type: "Nebula", x: 62, y: 45, z: 38, color: "#2E8B57", distance: "2,000 LY", description: "A planetary nebula formed by a shell of ionized gas expelled by a dying star." },
+  { name: "Kepler-22b", type: "Exoplanet", x: 45, y: 50, z: 22, color: "#20B2AA", distance: "600 LY", description: "A possible water world orbiting in the habitable zone of a Sun-like star." },
+  { name: "UY Scuti", type: "Hypergiant", x: 30, y: 95, z: 58, color: "#FF6347", distance: "9,500 LY", description: "One of the largest known stars by radius, engulfing Jupiter's orbit if placed here." },
+  { name: "Halley's Comet", type: "Comet", x: 12, y: 5, z: 10, color: "#A9A9A9", distance: "Varies", description: "The most famous short-period comet, visible from Earth every 75-76 years." }
 ];
 
 const MOCK_DETAILS_LOOKUP: Record<string, CelestialData> = {
@@ -128,6 +128,8 @@ export const fetchCelestialInfo = async (query: string): Promise<CelestialData> 
             ...GENERIC_MOCK_RESPONSE,
             name: node.name,
             type: node.type,
+            distance: node.distance || "Unknown",
+            description: node.description || GENERIC_MOCK_RESPONSE.description,
             coordinates: { x: node.x, y: node.y }
         };
     }
@@ -210,6 +212,8 @@ export const fetchInterestingNodes = async (): Promise<GraphNode[]> => {
             properties: {
               name: { type: Type.STRING },
               type: { type: Type.STRING },
+              distance: { type: Type.STRING, description: "Short distance string e.g. '400 LY'" },
+              description: { type: Type.STRING, description: "One short intriguing sentence about this object" },
               x: { type: Type.NUMBER, description: "0-100" },
               y: { type: Type.NUMBER, description: "0-100" },
               z: { type: Type.NUMBER, description: "Size factor 10-60" },
