@@ -94,12 +94,40 @@ export const fetchInterestingNodes = async (): Promise<any[]> => {
         }
       }
     });
-    
+
     const rawNodes = JSON.parse(response.text || "[]");
-    
+
     // Deduplicate nodes by name to prevent repeats like "Cat's Eye Nebula" appearing twice
     const uniqueNodes: any[] = [];
-    const seenNames = new Set();
-    
+    const seenNames = new Set<string>();
+
     for (const node of rawNodes) {
-      if (!seenNames.has(node.name))
+      if (!seenNames.has(node.name)) {
+        seenNames.add(node.name);
+        uniqueNodes.push(node);
+      }
+    }
+
+    return uniqueNodes;
+
+  } catch (e) {
+    // robust fallback dataset
+    return [
+      { name: "Betelgeuse", type: "Red Supergiant", x: 20, y: 80, z: 40, color: "#ff4500" },
+      { name: "Sirius B", type: "White Dwarf", x: 10, y: 20, z: 15, color: "#ffffff" },
+      { name: "Sagittarius A*", type: "Supermassive Black Hole", x: 90, y: 90, z: 50, color: "#bc13fe" },
+      { name: "Pillars of Creation", type: "Nebula", x: 60, y: 50, z: 45, color: "#00f3ff" },
+      { name: "Crab Pulsar", type: "Pulsar", x: 75, y: 65, z: 20, color: "#00ff9d" },
+      { name: "Andromeda", type: "Galaxy", x: 85, y: 30, z: 60, color: "#d8b4fe" },
+      { name: "Kepler-186f", type: "Exoplanet", x: 40, y: 45, z: 18, color: "#34d399" },
+      { name: "Ton 618", type: "Quasar", x: 95, y: 95, z: 55, color: "#fbbf24" },
+      { name: "Horsehead Nebula", type: "Nebula", x: 55, y: 60, z: 42, color: "#f472b6" },
+      { name: "Proxima Centauri", type: "Red Dwarf", x: 5, y: 10, z: 12, color: "#ef4444" },
+      { name: "TRAPPIST-1e", type: "Exoplanet", x: 35, y: 55, z: 16, color: "#60a5fa" },
+      { name: "Whirlpool Galaxy", type: "Galaxy", x: 80, y: 25, z: 58, color: "#818cf8" },
+      { name: "Cygnus X-1", type: "Black Hole", x: 70, y: 85, z: 35, color: "#a855f7" },
+      { name: "Vela Pulsar", type: "Pulsar", x: 65, y: 70, z: 18, color: "#22d3ee" },
+      { name: "Oort Cloud", type: "Cometary Cloud", x: 15, y: 5, z: 50, color: "#94a3b8" }
+    ];
+  }
+};
