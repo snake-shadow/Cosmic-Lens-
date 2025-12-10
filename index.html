@@ -4,13 +4,54 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Cosmic Lens - Interactive Explorer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              orbitron: ['Orbitron', 'sans-serif'],
+              rajdhani: ['Rajdhani', 'sans-serif'],
+            },
+            colors: {
+              space: {
+                900: '#0b0d17',
+                800: '#151932',
+                700: '#1f294f',
+              },
+              neon: {
+                blue: '#00f3ff',
+                purple: '#bc13fe',
+                pink: '#ff0099',
+              }
+            },
+            animation: {
+              'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+              'float': 'float 6s ease-in-out infinite',
+              'twinkle': 'twinkle 3s ease-in-out infinite',
+            },
+            keyframes: {
+              float: {
+                '0%, 100%': { transform: 'translateY(0)' },
+                '50%': { transform: 'translateY(-20px)' },
+              },
+              twinkle: {
+                '0%, 100%': { opacity: '0.2', transform: 'scale(0.8)' },
+                '50%': { opacity: '1', transform: 'scale(1.2)' },
+              }
+            }
+          },
+        },
+      }
+    </script>
     <style>
       body {
         background-color: #050505;
         color: #e0e7ff;
         overflow-x: hidden;
       }
+      /* Custom scrollbar */
       ::-webkit-scrollbar {
         width: 8px;
       }
@@ -25,21 +66,23 @@
         background: #bc13fe;
       }
     </style>
-<script type="importmap">
+  <script type="importmap">
 {
   "imports": {
-    "react": "https://aistudiocdn.com/react@^19.2.1",
-    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.1/",
-    "react/": "https://aistudiocdn.com/react@^19.2.1/",
-    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.31.0",
-    "recharts": "https://aistudiocdn.com/recharts@^3.5.1",
-    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.556.0"
+    "@google/genai": "https://esm.sh/@google/genai@^1.32.0",
+    "vite": "https://esm.sh/vite@^7.2.7",
+    "lucide-react": "https://esm.sh/lucide-react@^0.559.0",
+    "recharts": "https://esm.sh/recharts@^3.5.1",
+    "react/": "https://esm.sh/react@^19.2.1/",
+    "react": "https://esm.sh/react@^19.2.1",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.1/",
+    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.2"
   }
 }
 </script>
-  </head>
+</head>
   <body>
     <div id="root"></div>
-   <script type="module" src="/src/main.tsx"></script>
+    <script type="module" src="/src/index.tsx"></script>
   </body>
 </html>

@@ -2,7 +2,7 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { CelestialData } from "../types";
 
 // Initialize Gemini
-const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY! });
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 const modelName = 'gemini-2.5-flash';
 
@@ -94,20 +94,20 @@ export const fetchInterestingNodes = async (): Promise<any[]> => {
         }
       }
     });
-
+    
     const rawNodes = JSON.parse(response.text || "[]");
-
+    
     // Deduplicate nodes by name to prevent repeats like "Cat's Eye Nebula" appearing twice
     const uniqueNodes: any[] = [];
-    const seenNames = new Set<string>();
-
+    const seenNames = new Set();
+    
     for (const node of rawNodes) {
       if (!seenNames.has(node.name)) {
         seenNames.add(node.name);
         uniqueNodes.push(node);
       }
     }
-
+    
     return uniqueNodes;
 
   } catch (e) {
@@ -130,4 +130,4 @@ export const fetchInterestingNodes = async (): Promise<any[]> => {
       { name: "Oort Cloud", type: "Cometary Cloud", x: 15, y: 5, z: 50, color: "#94a3b8" }
     ];
   }
-};
+}

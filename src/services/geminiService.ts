@@ -1,31 +1,7 @@
 import { GoogleGenAI, Type } from "@google/genai";
+import { CelestialData, GraphNode } from "../types";
 
-export type CelestialData = {
-  name: string;
-  type: string;
-  distance: string;
-  mass: string;
-  temperature: string;
-  description: string;
-  funFact: string;
-  discoveryYear?: string;
-  coordinates: {
-    x: number;
-    y: number;
-  };
-};
-
-export type GraphNode = {
-  name: string;
-  type: string;
-  x: number;
-  y: number;
-  z: number;
-  color: string;
-};
-
-
-// --- MOCK DATA FOR GITHUB PAGES (SAFE MODE) ---
+// --- MOCK DATA FOR SAFE MODE ---
 // This ensures the app works beautifully even without an API key (e.g. on public demo)
 
 const MOCK_NODES: GraphNode[] = [
@@ -123,13 +99,11 @@ const GENERIC_MOCK_RESPONSE: CelestialData = {
 
 // --- GEMINI SERVICE ---
 
-// On GitHub Pages we do not use a live API key.
-// The app will run in “safe mode” and use mock data instead.
-const apiKey: string | null = null;
-// Loosen the type so TypeScript stops treating it as never
-let ai: any = null;
-// If you later add a backend, you can initialize GoogleGenAI there.
-
+const apiKey = process.env.API_KEY;
+let ai: GoogleGenAI | null = null;
+if (apiKey && apiKey.startsWith("AIza")) {
+  ai = new GoogleGenAI({ apiKey });
+}
 
 const modelName = 'gemini-2.5-flash';
 
@@ -137,7 +111,7 @@ const modelName = 'gemini-2.5-flash';
 const simulateDelay = async () => new Promise(resolve => setTimeout(resolve, 800));
 
 export const fetchCelestialInfo = async (query: string): Promise<CelestialData> => {
-  // 1. Fallback to Mock Data if no API key is present (GitHub Pages Mode)
+  // 1. Fallback to Mock Data if no API key is present
   if (!ai || !apiKey) {
     await simulateDelay();
     // Try exact match
