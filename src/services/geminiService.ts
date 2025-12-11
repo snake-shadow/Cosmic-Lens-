@@ -1,5 +1,8 @@
+/// <reference types="vite/client" />
+
 import { GoogleGenAI, Type } from "@google/genai";
 import { CelestialData, GraphNode } from "../types";
+
 
 // --- MOCK DATA FOR SAFE MODE ---
 // This ensures the app works beautifully even without an API key (e.g. on public demo)
