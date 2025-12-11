@@ -99,8 +99,9 @@ const GENERIC_MOCK_RESPONSE: CelestialData = {
 
 // --- GEMINI SERVICE ---
 
-const apiKey = process.env.API_KEY;
+const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
 let ai: GoogleGenAI | null = null;
+
 if (apiKey && apiKey.startsWith("AIza")) {
   ai = new GoogleGenAI({ apiKey });
 }
