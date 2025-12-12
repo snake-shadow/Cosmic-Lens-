@@ -8,7 +8,7 @@ interface HUDProps {
 }
 
 const HUD: React.FC<HUDProps> = ({ node, status }) => {
-  // STANDBY MODE (When no node is selected)
+  // STANDBY MODE: Balances the visual layout when no node is selected
   if (!node) {
      return (
         <div className="pointer-events-auto w-full animate-enter opacity-70 hover:opacity-100 transition-opacity duration-500">
@@ -27,7 +27,7 @@ const HUD: React.FC<HUDProps> = ({ node, status }) => {
                  <div className="h-32 flex items-center justify-center border border-dashed border-white/10 rounded-xl bg-black/20">
                     <div className="text-center">
                        <Radar size={32} className="text-white/20 mx-auto mb-2 animate-spin-slow" />
-                       <p className="text-[10px] text-gray-500 font-mono">WAITING FOR TARGET LOCK...</p>
+                       <p className="text-[10px] text-gray-500 font-mono mt-2">WAITING FOR TARGET LOCK...</p>
                     </div>
                  </div>
 
@@ -41,7 +41,7 @@ const HUD: React.FC<HUDProps> = ({ node, status }) => {
      );
   }
 
-  // ACTIVE MODE (When hovering a node)
+  // ACTIVE MODE: Shows details when hovering a node
   return (
     <div className="pointer-events-auto w-full animate-enter">
       <div className="glass-panel rounded-3xl p-6 relative overflow-hidden group hover:bg-white/[0.05] transition-colors shadow-[0_0_30px_rgba(0,0,0,0.5)]">

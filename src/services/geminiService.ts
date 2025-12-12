@@ -42,7 +42,7 @@ const generateProceduralData = (name: string): CelestialData => {
 };
 
 // --- MOCK DATA ---
-// Coordinates (x,y) updated to use full 0-100 range for better separation
+// Spread across 0-100 x/y to prevent clustering
 const MOCK_NODES: GraphNode[] = [
   { name: "Betelgeuse", type: "Red Supergiant", x: 15, y: 85, z: 40, color: "#ff4500", distance: "642 LY", description: "A red supergiant nearing the end of its life, expected to go supernova." },
   { name: "Sirius B", type: "White Dwarf", x: 5, y: 15, z: 15, color: "#ffffff", distance: "8.6 LY", description: "The faint white dwarf companion to the brightest star in the night sky." },
@@ -94,11 +94,11 @@ export interface ConnectionResult {
 
 export const checkApiConnection = async (): Promise<ConnectionResult> => {
   if (!apiKey) {
+     console.log("App running in SIMULATION MODE (No API Key provided)");
      return { success: false, message: "KEY MISSING" };
   }
   
   if (!ai) {
-    // Should generally be unreachable if apiKey is truthy, but safe guard
     return { success: false, message: "CLIENT ERROR" };
   }
 
