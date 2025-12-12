@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { ScatterChart, Scatter, XAxis, YAxis, ZAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { GraphNode } from '../types';
 import { Search } from 'lucide-react';
@@ -13,36 +13,59 @@ const MinimalTooltip = ({ active, payload }: any) => {
   if (active && payload && payload.length) {
     const data = payload[0].payload;
     return (
-      <div className="bg-black/80 backdrop-blur-md border border-neon-blue/30 px-3 py-2 rounded shadow-[0_0_15px_rgba(0,243,255,0.2)]">
+      <div className="bg-black/90 backdrop-blur-md border border-neon-blue/30 px-4 py-2 rounded shadow-[0_0_15px_rgba(0,243,255,0.2)] z-50 pointer-events-none">
         <p className="text-xs font-orbitron tracking-widest text-neon-blue uppercase">{data.type}</p>
-        <p className="text-sm font-rajdhani font-bold text-white">{data.name}</p>
+        <p className="text-lg font-rajdhani font-bold text-white leading-none">{data.name}</p>
       </div>
     );
   }
   return null;
 };
 
+// GLOBAL DEFS COMPONENT
+// Defining filters once here prevents the "distorted graphics" and black boxes.
+const GraphDefs = () => (
+  <defs>
+    {/* Black Hole Glow */}
+    <filter id="glow-bh" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="4" result="coloredBlur" />
+      <feMerge>
+        <feMergeNode in="coloredBlur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+
+    {/* Nebula Blur */}
+    <filter id="nebula-blur" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="3" />
+    </filter>
+    
+    {/* General Glow */}
+    <filter id="star-glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="2" result="coloredBlur" />
+       <feMerge>
+        <feMergeNode in="coloredBlur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+);
+
 const CustomShape = (props: any) => {
   const { cx, cy, fill, payload } = props;
   const type = payload?.type?.toLowerCase() || 'star';
   const size = payload?.z || 20;
-  const uniqueId = `glow-${payload.name?.replace(/\s/g, '') || Math.random()}`;
 
   // --- BLACK HOLE / VOID ---
   if (type.includes('black hole') || type.includes('void')) {
     return (
       <g className="cursor-pointer group">
-        <defs>
-          <filter id={uniqueId} x="-50%" y="-50%" width="200%" height="200%">
-             <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
-             <feMerge>
-                <feMergeNode in="coloredBlur"/>
-                <feMergeNode in="SourceGraphic"/>
-             </feMerge>
-          </filter>
-        </defs>
         {/* Accretion Disk */}
-        <ellipse cx={cx} cy={cy} rx={size / 1.5} ry={size / 4} fill="none" stroke={fill} strokeWidth="2" className="animate-spin-slow" filter={`url(#${uniqueId})`} opacity="0.9" />
+        <ellipse 
+          cx={cx} cy={cy} rx={size / 1.5} ry={size / 4} 
+          fill="none" stroke={fill} strokeWidth="2" 
+          filter="url(#glow-bh)" opacity="0.9" 
+        />
         {/* Event Horizon */}
         <circle cx={cx} cy={cy} r={size / 3} fill="#000" stroke={fill} strokeWidth="1" />
       </g>
@@ -52,11 +75,11 @@ const CustomShape = (props: any) => {
   // --- GALAXY ---
   if (type.includes('galaxy')) {
     return (
-      <g className="cursor-pointer hover:opacity-100 opacity-80 transition-opacity">
-         <g className="animate-spin-slow" style={{ transformOrigin: `${cx}px ${cy}px`, animationDuration: '30s' }}>
+      <g className="cursor-pointer opacity-80 hover:opacity-100 transition-opacity">
+         <g style={{ transformOrigin: `${cx}px ${cy}px`, transform: `rotate(${Math.sin(cx) * 360}deg)` }}>
             <ellipse cx={cx} cy={cy} rx={size} ry={size / 3} fill={fill} opacity="0.4" transform={`rotate(45, ${cx}, ${cy})`} />
             <ellipse cx={cx} cy={cy} rx={size} ry={size / 3} fill={fill} opacity="0.4" transform={`rotate(135, ${cx}, ${cy})`} />
-            <circle cx={cx} cy={cy} r={size / 5} fill="#fff" opacity="0.9" className="node-glow" />
+            <circle cx={cx} cy={cy} r={size / 5} fill="#fff" opacity="0.9" filter="url(#star-glow)" />
          </g>
       </g>
     );
@@ -66,8 +89,8 @@ const CustomShape = (props: any) => {
   if (type.includes('nebula') || type.includes('cloud')) {
      return (
        <g className="cursor-pointer">
-         <circle cx={cx} cy={cy} r={size / 1.5} fill={fill} opacity="0.3" filter="blur(3px)" />
-         <circle cx={cx} cy={cy} r={size / 2.5} fill={fill} opacity="0.5" filter="blur(1px)" />
+         <circle cx={cx} cy={cy} r={size / 1.5} fill={fill} opacity="0.3" filter="url(#nebula-blur)" />
+         <circle cx={cx} cy={cy} r={size / 2.5} fill={fill} opacity="0.5" filter="url(#nebula-blur)" />
          <circle cx={cx} cy={cy} r={2} fill="#fff" opacity="0.9" />
        </g>
      );
@@ -77,8 +100,8 @@ const CustomShape = (props: any) => {
   if (type.includes('pulsar') || type.includes('neutron')) {
     return (
       <g className="cursor-pointer">
-        <circle cx={cx} cy={cy} r={size / 2} fill={fill} opacity={0.4} className="animate-pulse" />
-        <circle cx={cx} cy={cy} r={4} fill="#fff" className="node-glow" />
+        <circle cx={cx} cy={cy} r={size / 2} fill={fill} opacity={0.4} />
+        <circle cx={cx} cy={cy} r={4} fill="#fff" filter="url(#star-glow)" />
         <line x1={cx - size} y1={cy} x2={cx + size} y2={cy} stroke={fill} strokeWidth="1" transform={`rotate(45, ${cx}, ${cy})`} opacity="0.6" />
         <line x1={cx} y1={cy - size} x2={cx} y2={cy + size} stroke={fill} strokeWidth="1" transform={`rotate(45, ${cx}, ${cy})`} opacity="0.6" />
       </g>
@@ -87,8 +110,8 @@ const CustomShape = (props: any) => {
 
   // --- DEFAULT STAR ---
   return (
-    <g className="cursor-pointer hover:scale-110 transition-transform">
-      <circle cx={cx} cy={cy} r={size / 3} fill={fill} opacity="0.6" className="animate-pulse-slow node-glow" />
+    <g className="cursor-pointer hover:scale-125 transition-transform duration-300">
+      <circle cx={cx} cy={cy} r={size / 3} fill={fill} opacity="0.8" filter="url(#star-glow)" />
       <circle cx={cx} cy={cy} r={size / 8} fill="#fff" />
     </g>
   );
@@ -106,14 +129,19 @@ const CosmicGraph: React.FC<CosmicGraphProps> = ({ data, onNodeClick, onNodeHove
       </div>
         
       {/* Chart Area */}
-      <div className="flex-1 w-full relative min-h-0 animate-in fade-in duration-1000">
+      <div className="flex-1 w-full relative min-h-[400px]">
         <div className="absolute inset-0">
           <ResponsiveContainer width="100%" height="100%">
             <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
+              <GraphDefs />
               <XAxis type="number" dataKey="x" name="Distance" hide domain={[-10, 110]} />
               <YAxis type="number" dataKey="y" name="Energy" hide domain={[-10, 110]} />
-              <ZAxis type="number" dataKey="z" range={[50, 800]} />
-              <Tooltip content={<MinimalTooltip />} cursor={{ strokeDasharray: '3 3', stroke: 'rgba(255,255,255,0.2)' }} />
+              <ZAxis type="number" dataKey="z" range={[60, 900]} />
+              <Tooltip 
+                content={<MinimalTooltip />} 
+                cursor={{ strokeDasharray: '3 3', stroke: 'rgba(255,255,255,0.2)' }}
+                isAnimationActive={false} // Improves hover performance significantly
+              />
               <Scatter 
                 name="Celestial Objects" 
                 data={data} 
