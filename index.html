@@ -17,16 +17,18 @@
             },
             colors: {
               brand: {
-                dark: '#0e1016',
-                surface: '#181b25',
-                blue: '#4da6ff',
-                purple: '#9d4dff',
+                dark: '#050508', /* Darker background for better contrast */
+                surface: '#0f111a',
+                blue: '#00f3ff', /* Electric Blue */
+                green: '#00ff9d', /* Neon Green */
+                purple: '#bc13fe', /* Neon Purple */
                 text: '#e2e8f0',
               }
             },
             animation: {
               'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
               'float': 'float 6s ease-in-out infinite',
+              'spin-slow': 'spin 12s linear infinite',
             },
             keyframes: {
               float: {
@@ -40,7 +42,7 @@
     </script>
     <style>
       body {
-        background-color: #0e1016;
+        background-color: #050508;
         color: #e2e8f0;
       }
     </style>

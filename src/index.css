@@ -1,15 +1,20 @@
 /* Global Styles */
-body {
+html, body, #root {
+  width: 100%;
+  height: 100%;
   margin: 0;
   padding: 0;
-  background-color: #0e1016;
-  color: #e2e8f0;
   overflow: hidden;
+}
+
+body {
+  background-color: #050508;
+  color: #e2e8f0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Custom scrollbar - Slim and Minimal */
+/* Custom scrollbar - Slim and Neon */
 ::-webkit-scrollbar {
   width: 6px;
 }
@@ -17,42 +22,47 @@ body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(0, 243, 255, 0.2);
   border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(0, 243, 255, 0.4);
 }
 
 /* --- UTILITIES --- */
 
-/* Modern Gradient Text */
+/* Modern Gradient Text - Updated to Electric Blue/Green */
 .text-gradient {
-  background: linear-gradient(135deg, #4da6ff 0%, #9d4dff 100%);
+  background: linear-gradient(135deg, #00f3ff 0%, #00ff9d 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  filter: drop-shadow(0 0 2px rgba(0, 243, 255, 0.3));
+}
+
+.text-shadow-glow {
+  text-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
 }
 
 /* Glassmorphism Panel */
 .glass-panel {
-  background: rgba(14, 16, 22, 0.75);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: rgba(15, 17, 26, 0.65);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
 }
 
 .glass-input {
-  background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(10px);
+  background: rgba(15, 17, 26, 0.8);
+  backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   transition: all 0.3s ease;
 }
 .glass-input:focus-within {
-  background: rgba(255, 255, 255, 0.07);
-  border-color: rgba(77, 166, 255, 0.5);
-  box-shadow: 0 0 0 4px rgba(77, 166, 255, 0.1);
+  background: rgba(15, 17, 26, 0.95);
+  border-color: rgba(0, 243, 255, 0.4);
+  box-shadow: 0 0 20px rgba(0, 243, 255, 0.1);
 }
 
 /* --- ANIMATIONS --- */
@@ -73,5 +83,5 @@ body {
   100% { transform: scale(1) rotate(360deg); opacity: 1; }
 }
 .gemini-sparkle {
-  animation: sparkle-spin 6s linear infinite;
+  animation: sparkle-spin 8s linear infinite;
 }
