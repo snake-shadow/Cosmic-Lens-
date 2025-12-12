@@ -18,7 +18,7 @@ const App: React.FC = () => {
   const [isOnline, setIsOnline] = useState(false);
 
   useEffect(() => {
-    setIsOnline(true); // User-facing status
+    setIsOnline(true);
 
     const loadInitialGraph = async () => {
       const nodes = await fetchInterestingNodes();
@@ -126,19 +126,6 @@ const App: React.FC = () => {
                 onNodeClick={handleNodeClick} 
                 onNodeHover={setHoveredNode} 
               />
-              
-              {/* Quick Filters */}
-              <div className="absolute bottom-4 left-4 right-4 flex gap-2 overflow-x-auto pb-2 scrollbar-hide pointer-events-auto z-10">
-                 {['Stars', 'Nebulae', 'Black Holes', 'Exoplanets', 'Pulsars'].map((category) => (
-                    <button 
-                      key={category}
-                      onClick={() => initiateSearch(category)}
-                      className="whitespace-nowrap bg-black/60 hover:bg-neon-blue/20 border border-white/20 hover:border-neon-blue/60 px-3 py-1.5 rounded text-[10px] font-orbitron text-gray-300 hover:text-white backdrop-blur-md transition-all"
-                    >
-                      {category}
-                    </button>
-                 ))}
-              </div>
             </div>
           )}
         </main>

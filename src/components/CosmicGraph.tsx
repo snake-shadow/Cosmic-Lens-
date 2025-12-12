@@ -32,6 +32,16 @@ const GraphDefs = () => (
         <feMergeNode in="SourceGraphic" />
       </feMerge>
     </filter>
+    <filter id="strong-glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="5" result="coloredBlur" />
+      <feMerge>
+        <feMergeNode in="coloredBlur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+    <filter id="blur-generic">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="3" />
+    </filter>
   </defs>
 );
 
@@ -44,7 +54,7 @@ const CustomShape = (props: any) => {
   if (type.includes('black hole') || type.includes('void')) {
     return (
       <g className="cursor-pointer group">
-        <circle cx={cx} cy={cy} r={size / 2} fill="#000" stroke={fill} strokeWidth="2" filter="url(#glow-master)" />
+        <circle cx={cx} cy={cy} r={size / 2} fill="#000" stroke={fill} strokeWidth="2" filter="url(#strong-glow)" />
         <circle cx={cx} cy={cy} r={size / 2.5} fill="#000" />
       </g>
     );
@@ -58,8 +68,33 @@ const CustomShape = (props: any) => {
           <animate attributeName="opacity" values="0.4;1;0.4" dur="0.5s" repeatCount="indefinite" />
         </circle>
         <circle cx={cx} cy={cy} r={size / 5} fill="#fff" />
+        {/* Jets */}
         <line x1={cx - size} y1={cy} x2={cx + size} y2={cy} stroke={fill} strokeWidth="1" opacity="0.6" transform={`rotate(45, ${cx}, ${cy})`} />
         <line x1={cx} y1={cy - size} x2={cx} y2={cy + size} stroke={fill} strokeWidth="1" opacity="0.6" transform={`rotate(45, ${cx}, ${cy})`} />
+      </g>
+    );
+  }
+
+  // --- NEBULA ---
+  if (type.includes('nebula') || type.includes('cloud')) {
+     return (
+       <g className="cursor-pointer hover:brightness-150 transition-all duration-500">
+         <circle cx={cx - 5} cy={cy - 2} r={size / 2} fill={fill} opacity="0.4" filter="url(#blur-generic)" />
+         <circle cx={cx + 5} cy={cy + 3} r={size / 2.5} fill={fill} opacity="0.3" filter="url(#blur-generic)" />
+         <circle cx={cx} cy={cy} r={size / 3} fill="#fff" opacity="0.2" filter="url(#blur-generic)" />
+         <circle cx={cx - 2} cy={cy - 2} r={1} fill="#fff" opacity="0.8" />
+         <circle cx={cx + 3} cy={cy + 2} r={1} fill="#fff" opacity="0.8" />
+       </g>
+     );
+  }
+
+  // --- GALAXY ---
+  if (type.includes('galaxy')) {
+    return (
+      <g className="cursor-pointer hover:brightness-125 transition-all">
+        <ellipse cx={cx} cy={cy} rx={size} ry={size/3} fill={fill} opacity="0.2" transform={`rotate(45, ${cx}, ${cy})`} />
+        <ellipse cx={cx} cy={cy} rx={size} ry={size/3} fill={fill} opacity="0.2" transform={`rotate(135, ${cx}, ${cy})`} />
+        <circle cx={cx} cy={cy} r={size/4} fill="#fff" filter="url(#glow-master)" />
       </g>
     );
   }
@@ -90,7 +125,6 @@ const CosmicGraph: React.FC<CosmicGraphProps> = ({ data, onNodeClick, onNodeHove
           <ResponsiveContainer width="100%" height="100%">
             <ScatterChart margin={{ top: 40, right: 40, bottom: 40, left: 40 }}>
               <GraphDefs />
-              {/* Domain padding fixes the 'stuck together' look by spreading nodes out */}
               <XAxis type="number" dataKey="x" name="Distance" hide domain={['dataMin - 10', 'dataMax + 10']} />
               <YAxis type="number" dataKey="y" name="Energy" hide domain={['dataMin - 10', 'dataMax + 10']} />
               <ZAxis type="number" dataKey="z" range={[50, 600]} />

@@ -49,15 +49,15 @@ const Background: React.FC = () => {
     const spawnOrbiter = () => {
       const isLeftToRight = Math.random() > 0.5;
       const startX = isLeftToRight ? -50 : width + 50;
-      const startY = Math.random() * (height / 2); // Mostly upper half
-      const speed = Math.random() * 4 + 2;
+      const startY = Math.random() * (height * 0.7); 
+      const speed = Math.random() * 4 + 3;
       
       orbiters.push({
         id: orbiterIdCounter++,
         x: startX,
         y: startY,
         dx: isLeftToRight ? speed : -speed,
-        dy: Math.random() * 2 - 1, // Slight vertical drift
+        dy: (Math.random() - 0.5) * 1.5, // Slight vertical drift
         size: Math.random() * 3 + 2,
         color: Math.random() > 0.5 ? '#00f3ff' : '#bc13fe',
         trail: [],
@@ -65,9 +65,9 @@ const Background: React.FC = () => {
       });
     };
 
-    // Spawn an orbiter every 4 seconds
-    const spawner = setInterval(spawnOrbiter, 4000);
-    spawnOrbiter(); // Spawn one immediately
+    // Spawn an orbiter every 3-4 seconds
+    const spawner = setInterval(spawnOrbiter, 3500);
+    spawnOrbiter(); 
 
     const animate = () => {
       ctx.clearRect(0, 0, width, height);
@@ -107,17 +107,17 @@ const Background: React.FC = () => {
 
       // 3. Draw & Update Orbiters
       orbiters.forEach((orb, index) => {
-        // Distance check
+        // Check distance to mouse
         const dist = Math.hypot(orb.x - mouseRef.current.x, orb.y - mouseRef.current.y);
         const captureRadius = 100; // Activation distance
         
         if (dist < captureRadius) {
           orb.isHovered = true;
-          // Freeze & Jitter (The "Whirring" effect)
-          orb.x += (Math.random() - 0.5) * 3;
-          orb.y += (Math.random() - 0.5) * 3;
+          // Freeze position but add "whirring" jitter
+          orb.x += (Math.random() - 0.5) * 4;
+          orb.y += (Math.random() - 0.5) * 4;
           
-          // Draw connection line
+          // Draw tractor beam line
           ctx.beginPath();
           ctx.moveTo(orb.x, orb.y);
           ctx.lineTo(mouseRef.current.x, mouseRef.current.y);
@@ -125,7 +125,7 @@ const Background: React.FC = () => {
           ctx.lineWidth = 1;
           ctx.stroke();
 
-          // Draw "CAPTURED" text
+          // Draw "CAPTURED" label
           ctx.fillStyle = '#fff';
           ctx.font = '10px Orbitron';
           ctx.fillText('ANOMALY CAPTURED', orb.x + 10, orb.y - 10);
@@ -136,9 +136,9 @@ const Background: React.FC = () => {
           orb.y += orb.dy;
         }
 
-        // Trail logic
+        // Update Trail
         orb.trail.push({ x: orb.x, y: orb.y });
-        if (orb.trail.length > 20) orb.trail.shift();
+        if (orb.trail.length > 25) orb.trail.shift();
 
         // Draw Trail
         ctx.beginPath();
@@ -146,26 +146,27 @@ const Background: React.FC = () => {
            ctx.lineTo(pos.x, pos.y);
         });
         ctx.strokeStyle = orb.isHovered ? '#fff' : orb.color;
-        ctx.lineWidth = orb.size / 2;
+        ctx.lineWidth = orb.isHovered ? 2 : orb.size / 2;
+        ctx.lineCap = 'round';
         ctx.stroke();
 
         // Draw Head
         ctx.beginPath();
         ctx.arc(orb.x, orb.y, orb.size, 0, Math.PI * 2);
-        ctx.fillStyle = orb.isHovered ? '#fff' : '#fff';
+        ctx.fillStyle = '#fff';
         ctx.fill();
         
-        // Glow
-        const glow = ctx.createRadialGradient(orb.x, orb.y, 0, orb.x, orb.y, orb.size * 4);
-        glow.addColorStop(0, orb.color);
+        // Draw Glow
+        const glow = ctx.createRadialGradient(orb.x, orb.y, 0, orb.x, orb.y, orb.size * 6);
+        glow.addColorStop(0, orb.isHovered ? '#ffffff' : orb.color);
         glow.addColorStop(1, 'transparent');
         ctx.fillStyle = glow;
         ctx.beginPath();
-        ctx.arc(orb.x, orb.y, orb.size * 4, 0, Math.PI * 2);
+        ctx.arc(orb.x, orb.y, orb.size * 6, 0, Math.PI * 2);
         ctx.fill();
 
-        // Remove if out of bounds
-        if (orb.x < -100 || orb.x > width + 100) {
+        // Remove if out of bounds (and not currently captured)
+        if (!orb.isHovered && (orb.x < -100 || orb.x > width + 100)) {
           orbiters.splice(index, 1);
         }
       });
