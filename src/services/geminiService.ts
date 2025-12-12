@@ -70,12 +70,13 @@ const MOCK_NODES: GraphNode[] = [
   { name: "Large Magellanic Cloud", type: "Galaxy", x: 75, y: 20, z: 55, color: "#FF69B4", distance: "163k LY", description: "A satellite galaxy of the Milky Way." }
 ];
 
-const apiKey = process.env.API_KEY;
+// Clean the key: remove quotes if present, trim whitespace
+const rawApiKey = process.env.API_KEY;
+const apiKey = rawApiKey ? rawApiKey.replace(/["']/g, "").trim() : "";
 let ai: GoogleGenAI | null = null;
 
-// Allow key to be set even if it has whitespace by trimming it
-if (apiKey && typeof apiKey === 'string' && apiKey.trim().startsWith("AIza")) {
-  ai = new GoogleGenAI({ apiKey: apiKey.trim() });
+if (apiKey) {
+  ai = new GoogleGenAI({ apiKey });
 }
 
 export const isApiConfigured = () => !!ai;
@@ -91,12 +92,15 @@ export interface ConnectionResult {
 }
 
 export const checkApiConnection = async (): Promise<ConnectionResult> => {
-  if (!apiKey || !apiKey.trim()) {
+  if (!apiKey) {
      return { success: false, message: "KEY MISSING" };
   }
+  
   if (!ai) {
-     return { success: false, message: "KEY FORMAT INVALID" };
+    // Should generally be unreachable if apiKey is truthy, but safe guard
+    return { success: false, message: "CLIENT ERROR" };
   }
+
   try {
     // Attempt a very cheap generation to verify key validity and quota
     await ai.models.generateContent({
@@ -106,12 +110,18 @@ export const checkApiConnection = async (): Promise<ConnectionResult> => {
     return { success: true, message: "ONLINE" };
   } catch (e: any) {
     console.warn("API Connection Check Failed:", e);
+    
     // Determine if it's a quota issue or something else
-    if (e.message?.includes('429') || e.message?.includes('quota')) {
+    const errorMsg = e.message || e.toString();
+    
+    if (errorMsg.includes('429') || errorMsg.includes('quota')) {
        return { success: false, message: "QUOTA EXCEEDED" };
     }
-    if (e.message?.includes('403') || e.message?.includes('key')) {
+    if (errorMsg.includes('403') || errorMsg.includes('key') || errorMsg.includes('permission')) {
         return { success: false, message: "KEY REJECTED" };
+    }
+    if (errorMsg.includes('404') || errorMsg.includes('not found')) {
+        return { success: false, message: "MODEL ERROR" };
     }
     return { success: false, message: "CONNECTION FAILED" };
   }
