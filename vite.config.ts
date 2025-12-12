@@ -12,8 +12,9 @@ export default defineConfig(({ mode }) => {
       // Injects the API key into the client-side code at build time
       'process.env.API_KEY': JSON.stringify(env.API_KEY)
     },
-    build: {
-      outDir: 'dist',
-    }
+   build: {
+  outDir: 'dist',
+  chunkSizeWarningLimit: 1500,
+}
   }
 })
