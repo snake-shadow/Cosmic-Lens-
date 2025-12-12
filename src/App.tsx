@@ -18,9 +18,7 @@ const App: React.FC = () => {
   const [isOnline, setIsOnline] = useState(false);
 
   useEffect(() => {
-    // Check configuration, but treat the app as "Online" for the user regardless
-    // because the procedural engine works perfectly without a key.
-    setIsOnline(true); 
+    setIsOnline(true); // User-facing status
 
     const loadInitialGraph = async () => {
       const nodes = await fetchInterestingNodes();
@@ -79,7 +77,6 @@ const App: React.FC = () => {
               <h1 className="text-3xl font-orbitron font-bold text-transparent bg-clip-text bg-gradient-to-r from-neon-blue via-white to-neon-purple drop-shadow-sm">
                 COSMIC LENS
               </h1>
-              {/* Status Indicator - Always Connected for User Confidence */}
               <div className="flex items-center gap-2 mt-1">
                 <div className="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_5px_#22c55e] animate-pulse"></div>
                 <span className="text-[10px] font-orbitron text-green-400 tracking-wider">SYSTEM ONLINE</span>
@@ -106,7 +103,7 @@ const App: React.FC = () => {
       </header>
 
       {/* Main Layout */}
-      <div className="flex-1 flex overflow-hidden relative z-10 px-4 pb-4 gap-4">
+      <div className="flex-1 flex overflow-hidden relative z-10 px-4 pb-4 gap-4 h-[calc(100vh-100px)]">
         
         {/* Left: Graph */}
         <main className="flex-1 flex flex-col relative min-w-0 bg-black/20 rounded-2xl border border-white/5 backdrop-blur-sm p-1">
