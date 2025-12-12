@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 
 const Background: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const mouseRef = useRef({ x: 0, y: 0 });
+  const mouseRef = useRef({ x: -100, y: -100 });
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -15,60 +15,81 @@ const Background: React.FC = () => {
     canvas.width = width;
     canvas.height = height;
 
-    const particles: { x: number; y: number; size: number; speedX: number; speedY: number; color: string }[] = [];
-    const particleCount = 150;
+    // Interactive Particle System
+    const particles: { x: number; y: number; size: number; speedX: number; speedY: number; color: string; baseX: number; baseY: number }[] = [];
+    const particleCount = 120;
+    const connectionDistance = 150;
 
-    // Initialize particles
     for (let i = 0; i < particleCount; i++) {
+      const x = Math.random() * width;
+      const y = Math.random() * height;
       particles.push({
-        x: Math.random() * width,
-        y: Math.random() * height,
-        size: Math.random() * 2,
-        speedX: (Math.random() - 0.5) * 0.5,
-        speedY: (Math.random() - 0.5) * 0.5,
-        color: Math.random() > 0.5 ? '#00f3ff' : '#bc13fe'
+        x,
+        y,
+        baseX: x,
+        baseY: y,
+        size: Math.random() * 2 + 0.5,
+        speedX: (Math.random() - 0.5) * 0.3,
+        speedY: (Math.random() - 0.5) * 0.3,
+        color: Math.random() > 0.6 ? '#00f3ff' : (Math.random() > 0.5 ? '#bc13fe' : '#ffffff')
       });
     }
 
     const animate = () => {
-      ctx.fillStyle = 'rgba(5, 5, 5, 0.2)'; // Trailing effect
+      ctx.fillStyle = '#050505';
       ctx.fillRect(0, 0, width, height);
+      
+      // Draw static background stars
+      for(let i=0; i<50; i++) {
+         ctx.fillStyle = `rgba(255,255,255, ${Math.random() * 0.3})`;
+         ctx.beginPath();
+         ctx.arc(Math.random() * width, Math.random() * height, Math.random(), 0, Math.PI*2);
+         ctx.fill();
+      }
 
-      particles.forEach(p => {
-        // Basic movement
+      particles.forEach((p, i) => {
+        // Movement
         p.x += p.speedX;
         p.y += p.speedY;
 
-        // Mouse interaction (gentle attraction)
+        // Bounce off edges
+        if (p.x < 0 || p.x > width) p.speedX *= -1;
+        if (p.y < 0 || p.y > height) p.speedY *= -1;
+
+        // Mouse Interaction (Constellation Effect)
         const dx = mouseRef.current.x - p.x;
         const dy = mouseRef.current.y - p.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        
-        if (dist < 200) {
-          p.x += dx * 0.01;
-          p.y += dy * 0.01;
+        const dist = Math.hypot(dx, dy);
+
+        if (dist < connectionDistance) {
+           const opacity = 1 - (dist / connectionDistance);
+           ctx.strokeStyle = `rgba(0, 243, 255, ${opacity * 0.5})`;
+           ctx.lineWidth = 1;
+           ctx.beginPath();
+           ctx.moveTo(p.x, p.y);
+           ctx.lineTo(mouseRef.current.x, mouseRef.current.y);
+           ctx.stroke();
+           
+           // Slight attraction
+           p.x += dx * 0.02;
+           p.y += dy * 0.02;
         }
 
-        // Wrap around screen
-        if (p.x < 0) p.x = width;
-        if (p.x > width) p.x = 0;
-        if (p.y < 0) p.y = height;
-        if (p.y > height) p.y = 0;
-
-        // Draw
+        // Draw Particle
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
         ctx.fillStyle = p.color;
         ctx.fill();
         
         // Glow
-        ctx.shadowBlur = 10;
-        ctx.shadowColor = p.color;
+        if (dist < connectionDistance) {
+          ctx.shadowBlur = 10;
+          ctx.shadowColor = p.color;
+          ctx.fill();
+          ctx.shadowBlur = 0;
+        }
       });
 
-      // Reset shadow for performance
-      ctx.shadowBlur = 0;
-      
       requestAnimationFrame(animate);
     };
 

@@ -54,7 +54,29 @@ body {
   text-shadow: 0 0 5px rgba(188, 19, 254, 0.5);
 }
 
-/* --- ANIMATIONS --- */
+.text-glow-blue {
+  text-shadow: 0 0 10px rgba(0, 243, 255, 0.4);
+}
+
+/* --- CUSTOM ANIMATIONS --- */
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.hud-slide-in {
+  animation: slideInRight 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 0.4; }
+}
+
+.hud-fade-in {
+  animation: fadeIn 0.5s ease-in forwards;
+}
 
 @keyframes spin-slow {
   from { transform: rotate(0deg); }
@@ -93,7 +115,7 @@ body {
 /* Grid Background Pattern */
 .bg-grid-pattern {
   background-image: 
-    linear-gradient(rgba(0, 243, 255, 0.1) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 243, 255, 0.1) 1px, transparent 1px);
+    linear-gradient(rgba(0, 243, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 243, 255, 0.05) 1px, transparent 1px);
   background-size: 40px 40px;
 }

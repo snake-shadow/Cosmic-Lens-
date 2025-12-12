@@ -1,6 +1,6 @@
 import React from 'react';
 import { GraphNode } from '../types';
-import { Scan, Activity, Database, AlertCircle } from 'lucide-react';
+import { Scan, Activity } from 'lucide-react';
 
 interface HUDProps {
   node: GraphNode | null;
@@ -26,14 +26,14 @@ const HUD: React.FC<HUDProps> = ({ node, status }) => {
       </div>
 
       {/* CONTENT AREA */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col relative">
         {node ? (
-          <div className="animate-in slide-in-from-right duration-300 fade-in flex flex-col h-full">
+          <div className="flex flex-col h-full hud-slide-in">
             {/* Object Title */}
             <div className="mb-6 relative">
               <div className="absolute -left-4 top-1 w-1 h-full bg-neon-purple/50"></div>
               <p className="font-orbitron text-xs text-neon-purple tracking-widest uppercase mb-1">TARGET LOCKED</p>
-              <h1 className="font-rajdhani font-bold text-5xl text-white text-glow-blue leading-none">{node.name}</h1>
+              <h1 className="font-rajdhani font-bold text-5xl text-white text-glow-blue leading-none break-words">{node.name}</h1>
               <div className="mt-2 flex items-center gap-2">
                  <span className="px-2 py-0.5 bg-neon-blue/10 border border-neon-blue/30 text-neon-blue text-xs font-mono rounded">{node.type}</span>
                  {node.distance && <span className="px-2 py-0.5 bg-white/5 border border-white/20 text-gray-300 text-xs font-mono rounded">{node.distance}</span>}
@@ -41,8 +41,9 @@ const HUD: React.FC<HUDProps> = ({ node, status }) => {
             </div>
 
             {/* Simulated Data Stream */}
-            <div className="bg-black/40 border border-white/10 rounded-lg p-4 mb-4 flex-1 overflow-hidden relative">
+            <div className="bg-black/40 border border-white/10 rounded-lg p-4 mb-4 flex-1 overflow-hidden relative group">
                <div className="scanlines absolute inset-0 opacity-20 pointer-events-none"></div>
+               <div className="absolute inset-0 bg-neon-blue/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
                <p className="font-rajdhani text-lg leading-relaxed text-gray-200">
                  {node.description || "Data fragments retrieved. High-energy signature detected. Further analysis required."}
                </p>
@@ -74,7 +75,7 @@ const HUD: React.FC<HUDProps> = ({ node, status }) => {
           </div>
         ) : (
           /* IDLE STATE */
-          <div className="flex-1 flex flex-col items-center justify-center text-center opacity-40">
+          <div className="flex-1 flex flex-col items-center justify-center text-center opacity-40 hud-fade-in">
             <Scan size={80} className="text-neon-blue animate-spin-slow mb-4" />
             <h2 className="font-orbitron text-xl text-white">SCANNER IDLE</h2>
             <p className="font-rajdhani mt-2 max-w-xs mx-auto">
