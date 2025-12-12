@@ -14,13 +14,25 @@ const App: React.FC = () => {
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [graphNodes, setGraphNodes] = useState<GraphNode[]>([]);
   const [hoveredNode, setHoveredNode] = useState<GraphNode | null>(null);
-  const [connectionStatus, setConnectionStatus] = useState<string>('Initializing...');
+  const [connectionStatus, setConnectionStatus] = useState<string>('INITIALIZING...');
+  const [isSimulated, setIsSimulated] = useState(false);
   const [graphLoading, setGraphLoading] = useState(true);
 
   useEffect(() => {
     const init = async () => {
+      // 1. Check Connection
       const status = await checkApiConnection();
-      setConnectionStatus(status.message);
+      
+      if (status.success) {
+        setConnectionStatus('SYSTEM ONLINE');
+        setIsSimulated(false);
+      } else {
+        console.warn("API Connection issue, switching to simulation:", status.message);
+        setConnectionStatus('SIMULATION MODE');
+        setIsSimulated(true);
+      }
+
+      // 2. Fetch Nodes
       const nodes = await fetchInterestingNodes();
       setGraphNodes(nodes);
       setGraphLoading(false);
@@ -66,15 +78,15 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="relative w-screen h-screen overflow-hidden font-sans bg-brand-dark selection:bg-brand-blue selection:text-black">
+    <div className="relative w-screen h-screen overflow-hidden bg-[#050508]">
       <Background />
       
-      {/* LAYER 1: UNIVERSE */}
+      {/* LAYER 1: UNIVERSE (Z-0) */}
       <div className="absolute inset-0 z-0">
          {graphLoading ? (
             <div className="w-full h-full flex items-center justify-center flex-col">
-               <div className="w-16 h-16 border-4 border-brand-blue border-t-transparent rounded-full animate-spin shadow-[0_0_30px_rgba(0,243,255,0.4)]"></div>
-               <p className="mt-6 font-display text-sm tracking-[0.3em] text-brand-blue animate-pulse uppercase">Initializing Cosmic Engine...</p>
+               <div className="w-16 h-16 border-4 border-[#00f3ff] border-t-transparent rounded-full animate-spin shadow-[0_0_30px_rgba(0,243,255,0.4)]"></div>
+               <p className="mt-6 font-display text-sm tracking-[0.3em] text-neon-blue animate-pulse uppercase">Initializing Cosmic Engine...</p>
             </div>
          ) : (
             <CosmicGraph 
@@ -85,14 +97,14 @@ const App: React.FC = () => {
          )}
       </div>
 
-      {/* LAYER 2: UI */}
+      {/* LAYER 2: UI OVERLAYS (Z-20+) */}
       
-      {/* Top Left: Logo */}
+      {/* Top Left: Logo - Uses Robust CSS classes for visibility */}
       <div className="absolute top-6 left-6 z-20 pointer-events-none select-none">
         <div className="flex items-center gap-4">
            {/* Logo Icon */}
            <div className="relative w-12 h-12 flex items-center justify-center">
-              <div className="absolute w-full h-full bg-brand-blue opacity-20 blur-xl rounded-full animate-pulse"></div>
+              <div className="absolute w-full h-full bg-[#00f3ff] opacity-20 blur-xl rounded-full animate-pulse"></div>
               <svg width="40" height="40" viewBox="0 0 24 24" fill="none" className="relative z-10 gemini-sparkle filter drop-shadow-[0_0_8px_rgba(0,243,255,0.8)]">
                 <path d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z" fill="url(#logo-gradient)" />
                 <defs>
@@ -105,13 +117,16 @@ const App: React.FC = () => {
            </div>
            
            <div>
-             <h1 className="font-display font-bold text-3xl tracking-wide leading-none">
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00f3ff] to-[#00ff9d] drop-shadow-[0_0_5px_rgba(0,243,255,0.5)]">COSMIC</span>
-                <span className="font-light text-white ml-1">LENS</span>
+             <h1 className="font-display font-bold text-3xl tracking-wide leading-none flex flex-col sm:block">
+                {/* Changed to solid neon text class to prevent gradient invisibility */}
+                <span className="text-neon-blue mr-2">COSMIC</span>
+                <span className="font-light text-white">LENS</span>
              </h1>
              <div className="flex items-center gap-2 mt-1">
-                <span className={`w-2 h-2 rounded-full ${connectionStatus === 'ONLINE' ? 'bg-[#00ff9d] shadow-[0_0_8px_#00ff9d]' : 'bg-red-500 shadow-[0_0_8px_red]'}`}></span>
-                <span className="text-[10px] font-medium text-brand-blue tracking-widest uppercase opacity-80">{connectionStatus}</span>
+                <span className={`w-2 h-2 rounded-full shadow-[0_0_8px_currentColor] animate-pulse ${isSimulated ? 'bg-yellow-400 text-yellow-400' : 'bg-[#00ff9d] text-[#00ff9d]'}`}></span>
+                <span className={`text-[10px] font-bold tracking-widest uppercase opacity-90 ${isSimulated ? 'text-yellow-400' : 'text-[#00ff9d]'}`}>
+                  {connectionStatus}
+                </span>
              </div>
            </div>
         </div>
@@ -119,9 +134,11 @@ const App: React.FC = () => {
 
       {/* Top Right: Status Badge */}
       <div className="absolute top-6 right-6 z-20 hidden md:flex items-center gap-3">
-         <div className="glass-panel px-4 py-2 rounded-full flex items-center gap-2 border border-brand-blue/30 shadow-[0_0_15px_rgba(0,243,255,0.15)] bg-black/40 backdrop-blur-md">
-            <span className="w-2 h-2 rounded-full bg-brand-purple animate-pulse"></span>
-            <span className="text-xs font-bold text-white tracking-wide font-display">SYSTEM ONLINE v2.1</span>
+         <div className="glass-panel-neon px-4 py-2 rounded-full flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-[#bc13fe] animate-pulse"></span>
+            <span className="text-xs font-bold text-white tracking-wide font-display">
+               {isSimulated ? 'SIMULATION V2.1' : 'LIVE UPLINK V2.1'}
+            </span>
          </div>
       </div>
 
@@ -130,15 +147,12 @@ const App: React.FC = () => {
          <HUD node={hoveredNode} status={connectionStatus} />
       </div>
 
-      {/* Bottom: Omnibar */}
+      {/* Bottom: Omnibar - Uses new .glass-panel-neon class for guaranteed colors */}
       <div className="absolute bottom-10 left-0 right-0 z-30 flex justify-center px-4 pointer-events-none">
         <form onSubmit={handleSearch} className="w-full max-w-2xl pointer-events-auto transform transition-transform duration-300 hover:-translate-y-1">
-           <div className="glass-input rounded-full p-2 flex items-center shadow-[0_0_30px_rgba(0,0,0,0.8)] relative group border border-brand-blue/40 bg-black/60 backdrop-blur-xl">
+           <div className="glass-panel-neon rounded-full p-2 flex items-center relative group transition-all duration-300">
               
-              {/* Glow Effect */}
-              <div className="absolute -inset-0.5 rounded-full bg-gradient-to-r from-brand-blue to-brand-green opacity-20 blur-md group-hover:opacity-40 transition-opacity duration-500"></div>
-              
-              <div className="relative w-12 h-12 rounded-full flex items-center justify-center bg-brand-blue/10 text-brand-blue group-focus-within:text-brand-green transition-colors">
+              <div className="relative w-12 h-12 rounded-full flex items-center justify-center bg-[#00f3ff]/10 text-[#00f3ff] group-focus-within:text-[#00ff9d] transition-colors">
                  <Sparkles size={20} className="filter drop-shadow-[0_0_5px_currentColor]" />
               </div>
               
@@ -147,21 +161,21 @@ const App: React.FC = () => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Ask the Universe... (e.g. 'Show me a Quasar')" 
-                className="relative flex-1 bg-transparent border-none text-white text-lg px-4 focus:ring-0 focus:outline-none font-sans placeholder-gray-500 h-12"
+                className="relative flex-1 bg-transparent border-none text-white text-lg px-4 focus:ring-0 focus:outline-none font-sans placeholder-gray-400 h-12"
               />
               
               <button 
                 type="submit"
                 disabled={!searchQuery.trim()}
-                className={`relative w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${searchQuery.trim() ? 'bg-gradient-to-tr from-brand-blue to-brand-green text-black shadow-[0_0_20px_rgba(0,243,255,0.4)] rotate-0 opacity-100' : 'bg-white/5 text-gray-600 -rotate-90 opacity-50'}`}
+                className={`relative w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${searchQuery.trim() ? 'bg-gradient-to-tr from-[#00f3ff] to-[#00ff9d] text-black shadow-[0_0_20px_rgba(0,243,255,0.4)] rotate-0 opacity-100' : 'bg-white/5 text-gray-500 -rotate-90 opacity-50'}`}
               >
                 {searchQuery.trim() ? <SendHorizontal size={20} fill="currentColor" /> : <Zap size={20} />}
               </button>
            </div>
            
            <div className="text-center mt-4">
-              <p className="text-[10px] text-brand-blue/70 font-bold tracking-[0.2em] uppercase drop-shadow-[0_0_5px_rgba(0,243,255,0.5)]">
-                Powered by Gemini 2.5 Flash
+              <p className="text-[10px] text-neon-blue font-bold tracking-[0.2em] uppercase opacity-80">
+                 {isSimulated ? 'Using Neural Simulation Database' : 'Powered by Gemini 2.5 Flash'}
               </p>
            </div>
         </form>
