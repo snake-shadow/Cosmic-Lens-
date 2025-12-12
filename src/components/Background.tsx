@@ -2,7 +2,6 @@ import React, { useEffect, useRef } from 'react';
 
 const Background: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const mouseRef = useRef({ x: -100, y: -100 });
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -12,81 +11,70 @@ const Background: React.FC = () => {
 
     let width = window.innerWidth;
     let height = window.innerHeight;
-    canvas.width = width;
-    canvas.height = height;
+    
+    const resize = () => {
+      width = window.innerWidth;
+      height = window.innerHeight;
+      canvas.width = width;
+      canvas.height = height;
+    };
+    window.addEventListener('resize', resize);
+    resize();
 
-    // Interactive Particle System
-    const particles: { x: number; y: number; size: number; speedX: number; speedY: number; color: string; baseX: number; baseY: number }[] = [];
-    const particleCount = 120;
-    const connectionDistance = 150;
-
-    for (let i = 0; i < particleCount; i++) {
-      const x = Math.random() * width;
-      const y = Math.random() * height;
-      particles.push({
-        x,
-        y,
-        baseX: x,
-        baseY: y,
+    // 1. STARS
+    const stars: { x: number; y: number; size: number; alpha: number; speed: number }[] = [];
+    for (let i = 0; i < 150; i++) {
+      stars.push({
+        x: Math.random() * width,
+        y: Math.random() * height,
         size: Math.random() * 2 + 0.5,
-        speedX: (Math.random() - 0.5) * 0.3,
-        speedY: (Math.random() - 0.5) * 0.3,
-        color: Math.random() > 0.6 ? '#00f3ff' : (Math.random() > 0.5 ? '#bc13fe' : '#ffffff')
+        alpha: Math.random(),
+        speed: Math.random() * 0.2 + 0.05
       });
     }
 
+    // 2. NEBULA CLOUDS (Large moving gradients)
+    const nebulas = [
+      { x: width * 0.2, y: height * 0.3, r: 400, color: 'rgba(0, 243, 255, 0.08)', vx: 0.1, vy: 0.05 }, // Blue
+      { x: width * 0.8, y: height * 0.7, r: 500, color: 'rgba(188, 19, 254, 0.06)', vx: -0.1, vy: -0.05 }, // Purple
+      { x: width * 0.5, y: height * 0.5, r: 600, color: 'rgba(0, 255, 157, 0.04)', vx: 0.05, vy: -0.02 }, // Green
+    ];
+
     const animate = () => {
-      ctx.fillStyle = '#050505';
+      ctx.fillStyle = '#050508'; // Deep dark background
       ctx.fillRect(0, 0, width, height);
-      
-      // Draw static background stars
-      for(let i=0; i<50; i++) {
-         ctx.fillStyle = `rgba(255,255,255, ${Math.random() * 0.3})`;
-         ctx.beginPath();
-         ctx.arc(Math.random() * width, Math.random() * height, Math.random(), 0, Math.PI*2);
-         ctx.fill();
-      }
 
-      particles.forEach((p, i) => {
-        // Movement
-        p.x += p.speedX;
-        p.y += p.speedY;
+      // Draw Nebulas
+      nebulas.forEach(neb => {
+        neb.x += neb.vx;
+        neb.y += neb.vy;
+        
+        // Bounce off edges (softly)
+        if (neb.x < -200 || neb.x > width + 200) neb.vx *= -1;
+        if (neb.y < -200 || neb.y > height + 200) neb.vy *= -1;
 
-        // Bounce off edges
-        if (p.x < 0 || p.x > width) p.speedX *= -1;
-        if (p.y < 0 || p.y > height) p.speedY *= -1;
-
-        // Mouse Interaction (Constellation Effect)
-        const dx = mouseRef.current.x - p.x;
-        const dy = mouseRef.current.y - p.y;
-        const dist = Math.hypot(dx, dy);
-
-        if (dist < connectionDistance) {
-           const opacity = 1 - (dist / connectionDistance);
-           ctx.strokeStyle = `rgba(0, 243, 255, ${opacity * 0.5})`;
-           ctx.lineWidth = 1;
-           ctx.beginPath();
-           ctx.moveTo(p.x, p.y);
-           ctx.lineTo(mouseRef.current.x, mouseRef.current.y);
-           ctx.stroke();
-           
-           // Slight attraction
-           p.x += dx * 0.02;
-           p.y += dy * 0.02;
-        }
-
-        // Draw Particle
+        const g = ctx.createRadialGradient(neb.x, neb.y, 0, neb.x, neb.y, neb.r);
+        g.addColorStop(0, neb.color);
+        g.addColorStop(1, 'transparent');
+        ctx.fillStyle = g;
         ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx.fillStyle = p.color;
+        ctx.arc(neb.x, neb.y, neb.r, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      // Draw Stars
+      stars.forEach(star => {
+        star.y -= star.speed;
+        if (star.y < 0) star.y = height;
+
+        ctx.beginPath();
+        ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255, 255, 255, ${star.alpha})`;
         ctx.fill();
         
-        // Glow
-        if (dist < connectionDistance) {
-          ctx.shadowBlur = 10;
-          ctx.shadowColor = p.color;
-          ctx.fill();
-          ctx.shadowBlur = 0;
+        // Twinkle
+        if (Math.random() > 0.95) {
+          star.alpha = Math.random() * 0.8 + 0.2;
         }
       });
 
@@ -95,23 +83,8 @@ const Background: React.FC = () => {
 
     const animId = requestAnimationFrame(animate);
 
-    const handleResize = () => {
-      width = window.innerWidth;
-      height = window.innerHeight;
-      canvas.width = width;
-      canvas.height = height;
-    };
-
-    const handleMouseMove = (e: MouseEvent) => {
-      mouseRef.current = { x: e.clientX, y: e.clientY };
-    };
-
-    window.addEventListener('resize', handleResize);
-    window.addEventListener('mousemove', handleMouseMove);
-
     return () => {
-      window.removeEventListener('resize', handleResize);
-      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('resize', resize);
       cancelAnimationFrame(animId);
     };
   }, []);

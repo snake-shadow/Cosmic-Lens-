@@ -17,14 +17,10 @@ const App: React.FC = () => {
   const [connectionStatus, setConnectionStatus] = useState<string>('Initializing...');
   const [graphLoading, setGraphLoading] = useState(true);
 
-  // Initial Data Load
   useEffect(() => {
     const init = async () => {
-      // 1. Check Connection
       const status = await checkApiConnection();
       setConnectionStatus(status.message);
-
-      // 2. Fetch Nodes
       const nodes = await fetchInterestingNodes();
       setGraphNodes(nodes);
       setGraphLoading(false);
@@ -44,7 +40,6 @@ const App: React.FC = () => {
     const data = await fetchCelestialInfo(query);
     setActiveData(data);
     
-    // Add searched item to graph dynamically if it has coords
     if (data.coordinates) {
        setGraphNodes(prev => {
          if (prev.find(n => n.name === data.name)) return prev;
@@ -55,7 +50,7 @@ const App: React.FC = () => {
              type: data.type,
              x: data.coordinates.x,
              y: data.coordinates.y,
-             z: 30, // Default size
+             z: 30, 
              color: data.type.toLowerCase().includes('pulsar') ? '#00ff9d' : '#00f3ff',
              description: data.description,
              distance: data.distance
@@ -74,7 +69,7 @@ const App: React.FC = () => {
     <div className="relative w-screen h-screen overflow-hidden font-sans bg-brand-dark selection:bg-brand-blue selection:text-black">
       <Background />
       
-      {/* --- LAYER 1: THE UNIVERSE (Full Screen) --- */}
+      {/* LAYER 1: UNIVERSE */}
       <div className="absolute inset-0 z-0">
          {graphLoading ? (
             <div className="w-full h-full flex items-center justify-center flex-col">
@@ -90,15 +85,15 @@ const App: React.FC = () => {
          )}
       </div>
 
-      {/* --- LAYER 2: UI OVERLAYS (Professional Floating UI) --- */}
+      {/* LAYER 2: UI */}
       
-      {/* Top Left: Brand / Logo Area */}
+      {/* Top Left: Logo */}
       <div className="absolute top-6 left-6 z-20 pointer-events-none select-none">
         <div className="flex items-center gap-4">
-           {/* Custom Gemini-style Logo - Restored Electric Gradients */}
+           {/* Logo Icon */}
            <div className="relative w-12 h-12 flex items-center justify-center">
-              <div className="absolute w-full h-full bg-gradient-to-tr from-brand-blue to-brand-green opacity-40 blur-xl rounded-full animate-pulse-slow"></div>
-              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" className="text-white relative z-10 gemini-sparkle filter drop-shadow-[0_0_10px_rgba(0,243,255,0.5)]">
+              <div className="absolute w-full h-full bg-brand-blue opacity-20 blur-xl rounded-full animate-pulse"></div>
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" className="relative z-10 gemini-sparkle filter drop-shadow-[0_0_8px_rgba(0,243,255,0.8)]">
                 <path d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z" fill="url(#logo-gradient)" />
                 <defs>
                   <linearGradient id="logo-gradient" x1="0" y1="0" x2="24" y2="24" gradientUnits="userSpaceOnUse">
@@ -110,40 +105,40 @@ const App: React.FC = () => {
            </div>
            
            <div>
-             <h1 className="font-display font-bold text-3xl tracking-wide text-white leading-none">
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-blue to-brand-green filter drop-shadow-[0_0_8px_rgba(0,243,255,0.3)]">COSMIC</span>
-                <span className="font-light ml-1">LENS</span>
+             <h1 className="font-display font-bold text-3xl tracking-wide leading-none">
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00f3ff] to-[#00ff9d] drop-shadow-[0_0_5px_rgba(0,243,255,0.5)]">COSMIC</span>
+                <span className="font-light text-white ml-1">LENS</span>
              </h1>
              <div className="flex items-center gap-2 mt-1">
-                <span className={`w-2 h-2 rounded-full ${connectionStatus === 'ONLINE' ? 'bg-brand-green shadow-[0_0_10px_#00ff9d]' : 'bg-red-500 shadow-[0_0_10px_red]'}`}></span>
+                <span className={`w-2 h-2 rounded-full ${connectionStatus === 'ONLINE' ? 'bg-[#00ff9d] shadow-[0_0_8px_#00ff9d]' : 'bg-red-500 shadow-[0_0_8px_red]'}`}></span>
                 <span className="text-[10px] font-medium text-brand-blue tracking-widest uppercase opacity-80">{connectionStatus}</span>
              </div>
            </div>
         </div>
       </div>
 
-      {/* Top Right: User / Settings Placeholder */}
+      {/* Top Right: Status Badge */}
       <div className="absolute top-6 right-6 z-20 hidden md:flex items-center gap-3">
-         <div className="glass-panel px-4 py-2 rounded-full flex items-center gap-2 border-brand-blue/30 shadow-[0_0_15px_rgba(0,243,255,0.1)]">
+         <div className="glass-panel px-4 py-2 rounded-full flex items-center gap-2 border border-brand-blue/30 shadow-[0_0_15px_rgba(0,243,255,0.15)] bg-black/40 backdrop-blur-md">
             <span className="w-2 h-2 rounded-full bg-brand-purple animate-pulse"></span>
-            <span className="text-xs font-bold text-white tracking-wide">PLAYGROUND V2.1</span>
+            <span className="text-xs font-bold text-white tracking-wide font-display">SYSTEM ONLINE v2.1</span>
          </div>
       </div>
 
-      {/* Right Side: Floating HUD Card */}
+      {/* Right: HUD */}
       <div className="absolute top-28 right-6 bottom-32 z-20 w-80 pointer-events-none flex flex-col justify-start">
          <HUD node={hoveredNode} status={connectionStatus} />
       </div>
 
-      {/* Bottom Center: The "Omnibar" - Restored Electric Look */}
+      {/* Bottom: Omnibar */}
       <div className="absolute bottom-10 left-0 right-0 z-30 flex justify-center px-4 pointer-events-none">
         <form onSubmit={handleSearch} className="w-full max-w-2xl pointer-events-auto transform transition-transform duration-300 hover:-translate-y-1">
-           <div className="glass-input rounded-full p-2 flex items-center shadow-[0_10px_40px_rgba(0,0,0,0.6)] relative group border-brand-blue/30">
+           <div className="glass-input rounded-full p-2 flex items-center shadow-[0_0_30px_rgba(0,0,0,0.8)] relative group border border-brand-blue/40 bg-black/60 backdrop-blur-xl">
               
-              {/* Dynamic Glow Background */}
-              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-brand-blue via-brand-purple to-brand-green opacity-0 group-hover:opacity-20 transition-opacity duration-500 blur-xl"></div>
+              {/* Glow Effect */}
+              <div className="absolute -inset-0.5 rounded-full bg-gradient-to-r from-brand-blue to-brand-green opacity-20 blur-md group-hover:opacity-40 transition-opacity duration-500"></div>
               
-              <div className="w-12 h-12 rounded-full flex items-center justify-center bg-brand-blue/10 text-brand-blue group-focus-within:text-brand-green transition-colors">
+              <div className="relative w-12 h-12 rounded-full flex items-center justify-center bg-brand-blue/10 text-brand-blue group-focus-within:text-brand-green transition-colors">
                  <Sparkles size={20} className="filter drop-shadow-[0_0_5px_currentColor]" />
               </div>
               
@@ -152,27 +147,26 @@ const App: React.FC = () => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Ask the Universe... (e.g. 'Show me a Quasar')" 
-                className="flex-1 bg-transparent border-none text-white text-lg px-4 focus:ring-0 focus:outline-none font-sans placeholder-gray-500 h-12"
+                className="relative flex-1 bg-transparent border-none text-white text-lg px-4 focus:ring-0 focus:outline-none font-sans placeholder-gray-500 h-12"
               />
               
               <button 
                 type="submit"
                 disabled={!searchQuery.trim()}
-                className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${searchQuery.trim() ? 'bg-gradient-to-tr from-brand-blue to-brand-green text-black shadow-[0_0_20px_rgba(0,243,255,0.4)] rotate-0 opacity-100' : 'bg-white/5 text-gray-600 -rotate-90 opacity-50'}`}
+                className={`relative w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${searchQuery.trim() ? 'bg-gradient-to-tr from-brand-blue to-brand-green text-black shadow-[0_0_20px_rgba(0,243,255,0.4)] rotate-0 opacity-100' : 'bg-white/5 text-gray-600 -rotate-90 opacity-50'}`}
               >
                 {searchQuery.trim() ? <SendHorizontal size={20} fill="currentColor" /> : <Zap size={20} />}
               </button>
            </div>
            
            <div className="text-center mt-4">
-              <p className="text-[10px] text-brand-blue/60 font-bold tracking-[0.2em] uppercase text-shadow-glow">
+              <p className="text-[10px] text-brand-blue/70 font-bold tracking-[0.2em] uppercase drop-shadow-[0_0_5px_rgba(0,243,255,0.5)]">
                 Powered by Gemini 2.5 Flash
               </p>
            </div>
         </form>
       </div>
 
-      {/* MODAL: Full Data View */}
       {isPanelOpen && (
         <InfoPanel 
           data={activeData} 
