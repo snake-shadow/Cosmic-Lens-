@@ -1,13 +1,15 @@
 import React from 'react';
 import { GraphNode } from '../types';
-import { Scan, Activity } from 'lucide-react';
+import { Scan, Activity, Wifi, WifiOff } from 'lucide-react';
 
 interface HUDProps {
   node: GraphNode | null;
-  status: string;
+  status: string; // Now receives the specific message (e.g. "KEY MISSING")
 }
 
 const HUD: React.FC<HUDProps> = ({ node, status }) => {
+  const isOnline = status === 'ONLINE';
+  
   return (
     <div className="w-full h-full flex flex-col p-4 relative overflow-hidden">
       {/* HUD Background Decorations */}
@@ -17,11 +19,14 @@ const HUD: React.FC<HUDProps> = ({ node, status }) => {
       {/* HEADER */}
       <div className="flex justify-between items-center mb-6 border-b border-white/10 pb-2">
         <div className="flex items-center gap-2 text-neon-blue">
-          <Activity size={18} className="animate-pulse" />
+          <Activity size={18} className={isOnline ? "animate-pulse" : ""} />
           <span className="font-orbitron text-sm tracking-widest">ANALYSIS_DECK_01</span>
         </div>
-        <div className="font-mono text-xs text-gray-400">
-           STATUS: <span className={status === 'online' ? "text-green-400" : "text-yellow-400"}>{status.toUpperCase()}</span>
+        <div className="flex items-center gap-2 font-mono text-xs">
+           {isOnline ? <Wifi size={12} className="text-green-400" /> : <WifiOff size={12} className="text-red-400" />}
+           <span className={isOnline ? "text-green-400" : "text-red-400 animate-pulse"}>
+              {status}
+           </span>
         </div>
       </div>
 

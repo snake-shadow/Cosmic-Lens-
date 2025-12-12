@@ -73,8 +73,9 @@ const MOCK_NODES: GraphNode[] = [
 const apiKey = process.env.API_KEY;
 let ai: GoogleGenAI | null = null;
 
-if (apiKey && typeof apiKey === 'string' && apiKey.startsWith("AIza")) {
-  ai = new GoogleGenAI({ apiKey });
+// Allow key to be set even if it has whitespace by trimming it
+if (apiKey && typeof apiKey === 'string' && apiKey.trim().startsWith("AIza")) {
+  ai = new GoogleGenAI({ apiKey: apiKey.trim() });
 }
 
 export const isApiConfigured = () => !!ai;
@@ -83,27 +84,43 @@ const modelName = 'gemini-2.5-flash';
 
 const simulateDelay = async () => new Promise(resolve => setTimeout(resolve, 600));
 
-// NEW: Explicitly check connection validity
-export const checkApiConnection = async (): Promise<boolean> => {
-  if (!ai) return false;
+// NEW: Explicitly check connection validity and return reason
+export interface ConnectionResult {
+  success: boolean;
+  message: string;
+}
+
+export const checkApiConnection = async (): Promise<ConnectionResult> => {
+  if (!apiKey || !apiKey.trim()) {
+     return { success: false, message: "KEY MISSING" };
+  }
+  if (!ai) {
+     return { success: false, message: "KEY FORMAT INVALID" };
+  }
   try {
     // Attempt a very cheap generation to verify key validity and quota
     await ai.models.generateContent({
       model: modelName,
       contents: "ping",
     });
-    return true;
-  } catch (e) {
-    console.warn("API Connection Check Failed (Key invalid or Quota exceeded):", e);
-    return false;
+    return { success: true, message: "ONLINE" };
+  } catch (e: any) {
+    console.warn("API Connection Check Failed:", e);
+    // Determine if it's a quota issue or something else
+    if (e.message?.includes('429') || e.message?.includes('quota')) {
+       return { success: false, message: "QUOTA EXCEEDED" };
+    }
+    if (e.message?.includes('403') || e.message?.includes('key')) {
+        return { success: false, message: "KEY REJECTED" };
+    }
+    return { success: false, message: "CONNECTION FAILED" };
   }
 };
 
 export const fetchCelestialInfo = async (query: string): Promise<CelestialData> => {
   // 1. Fallback to Procedural Mock Data if no API key is present
-  if (!ai || !apiKey) {
+  if (!ai) {
     await simulateDelay();
-    // Check known mock nodes first
     const knownNode = MOCK_NODES.find(n => n.name.toLowerCase().includes(query.toLowerCase()));
     if (knownNode) {
       return {
@@ -168,7 +185,7 @@ export const fetchCelestialInfo = async (query: string): Promise<CelestialData> 
 };
 
 export const fetchInterestingNodes = async (): Promise<GraphNode[]> => {
-  if (!ai || !apiKey) {
+  if (!ai) {
     return MOCK_NODES;
   }
 

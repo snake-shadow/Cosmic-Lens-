@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Sparkles, Database } from 'lucide-react';
+import { Search, Sparkles, Rocket } from 'lucide-react';
 import Background from './components/Background';
 import CosmicGraph from './components/CosmicGraph';
 import InfoPanel from './components/InfoPanel';
@@ -8,24 +8,23 @@ import { fetchCelestialInfo, fetchInterestingNodes, checkApiConnection } from '.
 import { CelestialData, GraphNode } from './types';
 
 const App: React.FC = () => {
-  // State
   const [searchQuery, setSearchQuery] = useState('');
   const [activeData, setActiveData] = useState<CelestialData | null>(null);
-  const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  
-  // Graph & HUD State
+  const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [graphNodes, setGraphNodes] = useState<GraphNode[]>([]);
   const [hoveredNode, setHoveredNode] = useState<GraphNode | null>(null);
-  const [connectionStatus, setConnectionStatus] = useState<'checking' | 'online' | 'offline'>('checking');
+  const [connectionStatus, setConnectionStatus] = useState<string>('CHECKING...');
   const [graphLoading, setGraphLoading] = useState(true);
 
-  // Initialization
+  // Initial Data Load
   useEffect(() => {
     const init = async () => {
-      const isOnline = await checkApiConnection();
-      setConnectionStatus(isOnline ? 'online' : 'offline');
+      // 1. Check Connection
+      const status = await checkApiConnection();
+      setConnectionStatus(status.message);
 
+      // 2. Fetch Nodes
       const nodes = await fetchInterestingNodes();
       setGraphNodes(nodes);
       setGraphLoading(false);
@@ -33,41 +32,47 @@ const App: React.FC = () => {
     init();
   }, []);
 
-  // Handlers
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!searchQuery.trim()) return;
-    performSearch(searchQuery);
+    initiateSearch(searchQuery);
   };
 
-  const performSearch = async (query: string) => {
+  const initiateSearch = async (query: string) => {
     setLoading(true);
-    setIsPanelOpen(true); // Open modal for full details
+    setIsPanelOpen(true);
     const data = await fetchCelestialInfo(query);
     setActiveData(data);
     
-    // Add to graph if it has coords
+    // Add searched item to graph dynamically if it has coords
     if (data.coordinates) {
-      setGraphNodes(prev => {
-        // Prevent duplicates
-        if (prev.find(n => n.name === data.name)) return prev;
-        return [...prev, {
-          name: data.name,
-          type: data.type,
-          x: data.coordinates.x,
-          y: data.coordinates.y,
-          z: 40,
-          color: '#ffffff', // Default for user searches
-          description: data.description,
-          distance: data.distance
-        }];
-      });
+       setGraphNodes(prev => {
+         if (prev.find(n => n.name === data.name)) return prev;
+         return [
+           ...prev, 
+           {
+             name: data.name,
+             type: data.type,
+             x: data.coordinates.x,
+             y: data.coordinates.y,
+             z: 30, // Default size
+             color: data.type.toLowerCase().includes('pulsar') ? '#00ff9d' : '#00f3ff',
+             description: data.description,
+             distance: data.distance
+           }
+         ];
+       });
     }
+    
     setLoading(false);
   };
 
+  const handleNodeClick = (node: GraphNode) => {
+    initiateSearch(node.name);
+  };
+
   return (
-    <div className="relative w-screen h-screen overflow-hidden font-rajdhani flex flex-col bg-space-900">
+    <div className="relative w-screen h-screen overflow-hidden font-rajdhani flex flex-col bg-space-900 selection:bg-neon-pink selection:text-white">
       <Background />
       <div className="scanlines fixed inset-0 z-50 pointer-events-none opacity-20"></div>
 
@@ -90,7 +95,7 @@ const App: React.FC = () => {
              type="text" 
              value={searchQuery}
              onChange={(e) => setSearchQuery(e.target.value)}
-             placeholder="Search database..." 
+             placeholder="Search for anomaly (e.g., 'Magnetar')..." 
              className="w-full bg-black/50 border border-white/10 rounded-full py-2 pl-10 pr-4 text-sm text-white focus:border-neon-blue focus:outline-none transition-colors font-orbitron"
            />
         </form>
@@ -109,7 +114,7 @@ const App: React.FC = () => {
           ) : (
             <CosmicGraph 
               data={graphNodes} 
-              onNodeClick={(node) => performSearch(node.name)}
+              onNodeClick={handleNodeClick}
               onNodeHover={setHoveredNode} 
             />
           )}
