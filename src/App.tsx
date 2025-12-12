@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Sparkles, Rocket, Database, AlertTriangle } from 'lucide-react';
+import { Search, Sparkles, Database } from 'lucide-react';
 import Background from './components/Background';
 import CosmicGraph from './components/CosmicGraph';
 import InfoPanel from './components/InfoPanel';
@@ -8,171 +8,127 @@ import { fetchCelestialInfo, fetchInterestingNodes, checkApiConnection } from '.
 import { CelestialData, GraphNode } from './types';
 
 const App: React.FC = () => {
+  // State
   const [searchQuery, setSearchQuery] = useState('');
   const [activeData, setActiveData] = useState<CelestialData | null>(null);
-  const [loading, setLoading] = useState(false);
   const [isPanelOpen, setIsPanelOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  
+  // Graph & HUD State
   const [graphNodes, setGraphNodes] = useState<GraphNode[]>([]);
-  const [graphLoading, setGraphLoading] = useState(true);
   const [hoveredNode, setHoveredNode] = useState<GraphNode | null>(null);
   const [connectionStatus, setConnectionStatus] = useState<'checking' | 'online' | 'offline'>('checking');
+  const [graphLoading, setGraphLoading] = useState(true);
 
+  // Initialization
   useEffect(() => {
-    const initializeSystem = async () => {
-      // 1. Check API Connection (validates key)
-      const isConnected = await checkApiConnection();
-      setConnectionStatus(isConnected ? 'online' : 'offline');
+    const init = async () => {
+      const isOnline = await checkApiConnection();
+      setConnectionStatus(isOnline ? 'online' : 'offline');
 
-      // 2. Load Graph
       const nodes = await fetchInterestingNodes();
       setGraphNodes(nodes);
       setGraphLoading(false);
     };
-    
-    initializeSystem();
+    init();
   }, []);
 
+  // Handlers
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!searchQuery.trim()) return;
-    initiateSearch(searchQuery);
+    performSearch(searchQuery);
   };
 
-  const initiateSearch = async (query: string) => {
+  const performSearch = async (query: string) => {
     setLoading(true);
-    setIsPanelOpen(true);
+    setIsPanelOpen(true); // Open modal for full details
     const data = await fetchCelestialInfo(query);
     setActiveData(data);
     
+    // Add to graph if it has coords
     if (data.coordinates) {
-       setGraphNodes(prev => [
-         ...prev, 
-         {
-           name: data.name,
-           type: data.type,
-           x: data.coordinates.x,
-           y: data.coordinates.y,
-           z: 40,
-           color: data.type.toLowerCase().includes('pulsar') ? '#00ff9d' : '#00f3ff',
-           description: data.description,
-           distance: data.distance
-         }
-       ]);
+      setGraphNodes(prev => {
+        // Prevent duplicates
+        if (prev.find(n => n.name === data.name)) return prev;
+        return [...prev, {
+          name: data.name,
+          type: data.type,
+          x: data.coordinates.x,
+          y: data.coordinates.y,
+          z: 40,
+          color: '#ffffff', // Default for user searches
+          description: data.description,
+          distance: data.distance
+        }];
+      });
     }
-    
     setLoading(false);
   };
 
-  const handleNodeClick = (node: GraphNode) => {
-    initiateSearch(node.name);
-  };
-
   return (
-    <div className="relative min-h-screen text-white font-rajdhani overflow-hidden selection:bg-neon-pink selection:text-white flex flex-col">
+    <div className="relative w-screen h-screen overflow-hidden font-rajdhani flex flex-col bg-space-900">
       <Background />
+      <div className="scanlines fixed inset-0 z-50 pointer-events-none opacity-20"></div>
 
-      {/* Header */}
-      <header className="flex-none container mx-auto px-4 py-4 flex flex-col md:flex-row items-center justify-between gap-4 animate-float z-20">
-        <div className="flex items-center gap-3">
-            <div className="bg-neon-blue/10 p-2 rounded-lg border border-neon-blue/40 shadow-[0_0_15px_rgba(0,243,255,0.2)]">
-              <Rocket className="text-neon-blue" size={24} />
-            </div>
-            <div className="flex flex-col">
-              <h1 className="text-3xl font-orbitron font-bold text-transparent bg-clip-text bg-gradient-to-r from-neon-blue via-white to-neon-purple drop-shadow-sm">
-                COSMIC LENS
-              </h1>
-              
-              {/* Connection Status Indicator */}
-              <div className="flex items-center gap-2 mt-1">
-                {connectionStatus === 'checking' && (
-                   <>
-                     <div className="w-1.5 h-1.5 rounded-full bg-yellow-500 animate-pulse"></div>
-                     <span className="text-[10px] font-orbitron text-yellow-500 tracking-wider">INITIALIZING...</span>
-                   </>
-                )}
-                {connectionStatus === 'online' && (
-                   <>
-                     <div className="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_5px_#22c55e] animate-pulse"></div>
-                     <span className="text-[10px] font-orbitron text-green-400 tracking-wider">SYSTEM ONLINE</span>
-                   </>
-                )}
-                {connectionStatus === 'offline' && (
-                   <>
-                     <div className="w-1.5 h-1.5 rounded-full bg-red-500 shadow-[0_0_5px_#ef4444]"></div>
-                     <span className="text-[10px] font-orbitron text-red-400 tracking-wider flex items-center gap-1">
-                       OFFLINE / SIMULATION MODE
-                     </span>
-                   </>
-                )}
-              </div>
-            </div>
+      {/* --- TOP BAR --- */}
+      <header className="flex-none h-16 flex items-center justify-between px-6 border-b border-white/10 bg-black/40 backdrop-blur-md z-30">
+        <div className="flex items-center gap-4">
+           <div className="w-8 h-8 rounded bg-gradient-to-br from-neon-blue to-neon-purple flex items-center justify-center">
+             <Sparkles size={16} className="text-white" />
+           </div>
+           <div>
+             <h1 className="font-orbitron font-bold text-xl tracking-wider text-white">COSMIC<span className="text-neon-blue">LENS</span></h1>
+             <p className="text-[10px] text-gray-400 tracking-[0.3em]">INTERSTELLAR EXPLORER v2.0</p>
+           </div>
         </div>
 
-        {/* Search Bar */}
-        <form onSubmit={handleSearch} className="w-full max-w-md relative group">
-          <button 
-            type="submit"
-            className="absolute left-2 top-1.5 bg-neon-blue/10 hover:bg-neon-blue/80 text-neon-blue hover:text-black p-1.5 rounded-full transition-all z-10"
-          >
-            <Sparkles size={16} />
-          </button>
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Query Galactic Database..."
-            className="w-full bg-space-800/40 backdrop-blur-md border border-white/10 focus:border-neon-blue/60 text-white pl-12 pr-4 py-2.5 rounded-full focus:outline-none focus:shadow-[0_0_20px_rgba(0,243,255,0.2)] transition-all font-orbitron text-sm tracking-wide"
-          />
+        {/* Search Input */}
+        <form onSubmit={handleSearch} className="relative w-96 hidden md:block">
+           <Search className="absolute left-3 top-2.5 text-neon-blue w-4 h-4" />
+           <input 
+             type="text" 
+             value={searchQuery}
+             onChange={(e) => setSearchQuery(e.target.value)}
+             placeholder="Search database..." 
+             className="w-full bg-black/50 border border-white/10 rounded-full py-2 pl-10 pr-4 text-sm text-white focus:border-neon-blue focus:outline-none transition-colors font-orbitron"
+           />
         </form>
       </header>
 
-      {/* Main Layout */}
-      <div className="flex-1 flex overflow-hidden relative z-10 px-4 pb-4 gap-4 h-[calc(100vh-100px)]">
+      {/* --- MAIN DASHBOARD --- */}
+      <main className="flex-1 flex overflow-hidden relative z-10">
         
-        {/* Left: Graph */}
-        <main className="flex-1 flex flex-col relative min-w-0 bg-black/20 rounded-2xl border border-white/5 backdrop-blur-sm p-1">
+        {/* LEFT: COSMIC MAP */}
+        <div className="flex-1 relative bg-grid-pattern">
           {graphLoading ? (
-            <div className="flex-1 flex items-center justify-center">
-               <div className="flex flex-col items-center gap-4">
-                  <div className="relative">
-                    <div className="w-16 h-16 border-4 border-neon-blue/30 border-t-neon-blue rounded-full animate-spin"></div>
-                    <div className="absolute inset-0 flex items-center justify-center">
-                       <Database size={20} className="text-neon-blue/50" />
-                    </div>
-                  </div>
-                  <p className="font-orbitron text-xs tracking-[0.3em] text-neon-blue animate-pulse">SCANNING SECTOR...</p>
-               </div>
+            <div className="absolute inset-0 flex items-center justify-center flex-col">
+               <div className="w-16 h-16 border-4 border-neon-blue border-t-transparent rounded-full animate-spin"></div>
+               <p className="mt-4 font-orbitron text-neon-blue animate-pulse">CALIBRATING SENSORS...</p>
             </div>
           ) : (
-            <div className="flex-1 w-full h-full relative flex flex-col">
-              <CosmicGraph 
-                data={graphNodes} 
-                onNodeClick={handleNodeClick} 
-                onNodeHover={setHoveredNode} 
-              />
-              
-              {/* Quick Filters */}
-              <div className="absolute bottom-4 left-4 right-4 flex gap-2 overflow-x-auto pb-2 scrollbar-hide pointer-events-auto z-10">
-                 {['Stars', 'Nebulae', 'Black Holes', 'Exoplanets', 'Pulsars'].map((category) => (
-                    <button 
-                      key={category}
-                      onClick={() => initiateSearch(category)}
-                      className="whitespace-nowrap bg-black/60 hover:bg-neon-blue/20 border border-white/20 hover:border-neon-blue/60 px-3 py-1.5 rounded text-[10px] font-orbitron text-gray-300 hover:text-white backdrop-blur-md transition-all"
-                    >
-                      {category}
-                    </button>
-                 ))}
-              </div>
-            </div>
+            <CosmicGraph 
+              data={graphNodes} 
+              onNodeClick={(node) => performSearch(node.name)}
+              onNodeHover={setHoveredNode} 
+            />
           )}
-        </main>
+          
+          {/* Map Overlay Stats */}
+          <div className="absolute bottom-4 left-6 pointer-events-none">
+            <h3 className="text-xs font-orbitron text-gray-500">SECTOR: DEEP_FIELD_ALPHA</h3>
+            <p className="text-xs font-mono text-neon-purple">OBJECTS: {graphNodes.length}</p>
+          </div>
+        </div>
 
-        {/* Right: HUD (Desktop Only) */}
-        <HUD node={hoveredNode} />
-      
-      </div>
+        {/* RIGHT: HUD (Sidebar) */}
+        <aside className="w-96 holo-panel border-l border-white/10 flex-none z-20">
+           <HUD node={hoveredNode} status={connectionStatus} />
+        </aside>
 
-      {/* Detail Overlay */}
+      </main>
+
+      {/* MODAL: Full Data View */}
       {isPanelOpen && (
         <InfoPanel 
           data={activeData} 

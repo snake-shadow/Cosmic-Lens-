@@ -2,9 +2,6 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { CelestialData, GraphNode } from "../types";
 
 // --- PROCEDURAL GENERATION HELPERS (The "Infinite" Engine) ---
-// This ensures that even without an API key, the app NEVER feels empty.
-// It generates consistent "fake" data based on the string characters of the search query.
-
 const hashCode = (str: string) => {
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
@@ -73,8 +70,6 @@ const MOCK_NODES: GraphNode[] = [
   { name: "Large Magellanic Cloud", type: "Galaxy", x: 75, y: 20, z: 55, color: "#FF69B4", distance: "163k LY", description: "A satellite galaxy of the Milky Way." }
 ];
 
-// --- GEMINI SERVICE ---
-
 const apiKey = process.env.API_KEY;
 let ai: GoogleGenAI | null = null;
 
@@ -108,7 +103,6 @@ export const fetchCelestialInfo = async (query: string): Promise<CelestialData> 
   // 1. Fallback to Procedural Mock Data if no API key is present
   if (!ai || !apiKey) {
     await simulateDelay();
-    
     // Check known mock nodes first
     const knownNode = MOCK_NODES.find(n => n.name.toLowerCase().includes(query.toLowerCase()));
     if (knownNode) {

@@ -1,20 +1,8 @@
 import React, { useEffect, useRef } from 'react';
 
-interface Orbiter {
-  id: number;
-  x: number;
-  y: number;
-  dx: number;
-  dy: number;
-  size: number;
-  color: string;
-  trail: {x: number, y: number}[];
-  isHovered: boolean;
-}
-
 const Background: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const mouseRef = useRef({ x: -1000, y: -1000 });
+  const mouseRef = useRef({ x: 0, y: 0 });
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -27,154 +15,64 @@ const Background: React.FC = () => {
     canvas.width = width;
     canvas.height = height;
 
-    // --- Star System ---
-    const stars: { x: number; y: number; radius: number; alpha: number; velocity: number; type: 'circle' | 'diamond' }[] = [];
-    const starCount = 600;
+    const particles: { x: number; y: number; size: number; speedX: number; speedY: number; color: string }[] = [];
+    const particleCount = 150;
 
-    for (let i = 0; i < starCount; i++) {
-      stars.push({
+    // Initialize particles
+    for (let i = 0; i < particleCount; i++) {
+      particles.push({
         x: Math.random() * width,
         y: Math.random() * height,
-        radius: Math.random() * 1.5,
-        alpha: Math.random(),
-        velocity: Math.random() * 0.05 + 0.02,
-        type: Math.random() > 0.9 ? 'diamond' : 'circle'
+        size: Math.random() * 2,
+        speedX: (Math.random() - 0.5) * 0.5,
+        speedY: (Math.random() - 0.5) * 0.5,
+        color: Math.random() > 0.5 ? '#00f3ff' : '#bc13fe'
       });
     }
 
-    // --- Orbiter System (Shooting Objects) ---
-    let orbiters: Orbiter[] = [];
-    let orbiterIdCounter = 0;
-
-    const spawnOrbiter = () => {
-      const isLeftToRight = Math.random() > 0.5;
-      const startX = isLeftToRight ? -50 : width + 50;
-      const startY = Math.random() * (height * 0.7); 
-      const speed = Math.random() * 4 + 3;
-      
-      orbiters.push({
-        id: orbiterIdCounter++,
-        x: startX,
-        y: startY,
-        dx: isLeftToRight ? speed : -speed,
-        dy: (Math.random() - 0.5) * 1.5, // Slight vertical drift
-        size: Math.random() * 3 + 2,
-        color: Math.random() > 0.5 ? '#00f3ff' : '#bc13fe',
-        trail: [],
-        isHovered: false
-      });
-    };
-
-    // Spawn an orbiter every 3-4 seconds
-    const spawner = setInterval(spawnOrbiter, 3500);
-    spawnOrbiter(); 
-
     const animate = () => {
-      ctx.clearRect(0, 0, width, height);
-
-      // 1. Draw Background Gradient
-      const gradient = ctx.createRadialGradient(width / 2, height / 2, 0, width / 2, height / 2, width);
-      gradient.addColorStop(0, '#0b0d17');
-      gradient.addColorStop(1, '#020205');
-      ctx.fillStyle = gradient;
+      ctx.fillStyle = 'rgba(5, 5, 5, 0.2)'; // Trailing effect
       ctx.fillRect(0, 0, width, height);
 
-      // 2. Draw Stars
-      stars.forEach(star => {
-        ctx.beginPath();
-        if (star.type === 'diamond') {
-          // Diamond sparkle
-          ctx.moveTo(star.x, star.y - star.radius * 2);
-          ctx.lineTo(star.x + star.radius, star.y);
-          ctx.lineTo(star.x, star.y + star.radius * 2);
-          ctx.lineTo(star.x - star.radius, star.y);
-          ctx.closePath();
-        } else {
-          ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
-        }
+      particles.forEach(p => {
+        // Basic movement
+        p.x += p.speedX;
+        p.y += p.speedY;
 
-        const flicker = Math.sin(Date.now() * 0.005 + star.x) * 0.2 + 0.8;
-        ctx.fillStyle = `rgba(255, 255, 255, ${star.alpha * flicker})`;
-        ctx.fill();
-
-        // Parallax movement
-        star.y -= star.velocity;
-        if (star.y < 0) {
-          star.y = height;
-          star.x = Math.random() * width;
-        }
-      });
-
-      // 3. Draw & Update Orbiters
-      orbiters.forEach((orb, index) => {
-        // Check distance to mouse
-        const dist = Math.hypot(orb.x - mouseRef.current.x, orb.y - mouseRef.current.y);
-        const captureRadius = 100; // Activation distance
+        // Mouse interaction (gentle attraction)
+        const dx = mouseRef.current.x - p.x;
+        const dy = mouseRef.current.y - p.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
         
-        if (dist < captureRadius) {
-          orb.isHovered = true;
-          // Freeze position but add "whirring" jitter
-          orb.x += (Math.random() - 0.5) * 4;
-          orb.y += (Math.random() - 0.5) * 4;
-          
-          // Draw tractor beam line
-          ctx.beginPath();
-          ctx.moveTo(orb.x, orb.y);
-          ctx.lineTo(mouseRef.current.x, mouseRef.current.y);
-          ctx.strokeStyle = `rgba(0, 243, 255, ${1 - dist/captureRadius})`;
-          ctx.lineWidth = 1;
-          ctx.stroke();
-
-          // Draw "CAPTURED" label
-          ctx.fillStyle = '#fff';
-          ctx.font = '10px Orbitron';
-          ctx.fillText('ANOMALY CAPTURED', orb.x + 10, orb.y - 10);
-        } else {
-          orb.isHovered = false;
-          // Move normally
-          orb.x += orb.dx;
-          orb.y += orb.dy;
+        if (dist < 200) {
+          p.x += dx * 0.01;
+          p.y += dy * 0.01;
         }
 
-        // Update Trail
-        orb.trail.push({ x: orb.x, y: orb.y });
-        if (orb.trail.length > 25) orb.trail.shift();
+        // Wrap around screen
+        if (p.x < 0) p.x = width;
+        if (p.x > width) p.x = 0;
+        if (p.y < 0) p.y = height;
+        if (p.y > height) p.y = 0;
 
-        // Draw Trail
+        // Draw
         ctx.beginPath();
-        orb.trail.forEach((pos, i) => {
-           ctx.lineTo(pos.x, pos.y);
-        });
-        ctx.strokeStyle = orb.isHovered ? '#fff' : orb.color;
-        ctx.lineWidth = orb.isHovered ? 2 : orb.size / 2;
-        ctx.lineCap = 'round';
-        ctx.stroke();
-
-        // Draw Head
-        ctx.beginPath();
-        ctx.arc(orb.x, orb.y, orb.size, 0, Math.PI * 2);
-        ctx.fillStyle = '#fff';
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fillStyle = p.color;
         ctx.fill();
         
-        // Draw Glow
-        const glow = ctx.createRadialGradient(orb.x, orb.y, 0, orb.x, orb.y, orb.size * 6);
-        glow.addColorStop(0, orb.isHovered ? '#ffffff' : orb.color);
-        glow.addColorStop(1, 'transparent');
-        ctx.fillStyle = glow;
-        ctx.beginPath();
-        ctx.arc(orb.x, orb.y, orb.size * 6, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Remove if out of bounds (and not currently captured)
-        if (!orb.isHovered && (orb.x < -100 || orb.x > width + 100)) {
-          orbiters.splice(index, 1);
-        }
+        // Glow
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = p.color;
       });
 
+      // Reset shadow for performance
+      ctx.shadowBlur = 0;
+      
       requestAnimationFrame(animate);
     };
 
-    const animationId = requestAnimationFrame(animate);
+    const animId = requestAnimationFrame(animate);
 
     const handleResize = () => {
       width = window.innerWidth;
@@ -193,8 +91,7 @@ const Background: React.FC = () => {
     return () => {
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('mousemove', handleMouseMove);
-      cancelAnimationFrame(animationId);
-      clearInterval(spawner);
+      cancelAnimationFrame(animId);
     };
   }, []);
 
