@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { ScatterChart, Scatter, XAxis, YAxis, ZAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { GraphNode } from '../types';
 import { Search } from 'lucide-react';
@@ -40,10 +40,19 @@ const GraphDefs = () => (
       <feGaussianBlur in="SourceGraphic" stdDeviation="3" />
     </filter>
     
-    {/* General Glow */}
+    {/* General Star Glow */}
     <filter id="star-glow" x="-50%" y="-50%" width="200%" height="200%">
       <feGaussianBlur stdDeviation="2" result="coloredBlur" />
        <feMerge>
+        <feMergeNode in="coloredBlur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+
+    {/* Strong Pulse Glow */}
+    <filter id="strong-glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur" />
+      <feMerge>
         <feMergeNode in="coloredBlur" />
         <feMergeNode in="SourceGraphic" />
       </feMerge>
@@ -74,9 +83,11 @@ const CustomShape = (props: any) => {
 
   // --- GALAXY ---
   if (type.includes('galaxy')) {
+    // Generate a pseudo-random rotation based on position so they don't all look identical
+    const rotation = (cx + cy) % 360;
     return (
       <g className="cursor-pointer opacity-80 hover:opacity-100 transition-opacity">
-         <g style={{ transformOrigin: `${cx}px ${cy}px`, transform: `rotate(${Math.sin(cx) * 360}deg)` }}>
+         <g transform={`rotate(${rotation}, ${cx}, ${cy})`}>
             <ellipse cx={cx} cy={cy} rx={size} ry={size / 3} fill={fill} opacity="0.4" transform={`rotate(45, ${cx}, ${cy})`} />
             <ellipse cx={cx} cy={cy} rx={size} ry={size / 3} fill={fill} opacity="0.4" transform={`rotate(135, ${cx}, ${cy})`} />
             <circle cx={cx} cy={cy} r={size / 5} fill="#fff" opacity="0.9" filter="url(#star-glow)" />
@@ -101,7 +112,7 @@ const CustomShape = (props: any) => {
     return (
       <g className="cursor-pointer">
         <circle cx={cx} cy={cy} r={size / 2} fill={fill} opacity={0.4} />
-        <circle cx={cx} cy={cy} r={4} fill="#fff" filter="url(#star-glow)" />
+        <circle cx={cx} cy={cy} r={4} fill="#fff" filter="url(#strong-glow)" />
         <line x1={cx - size} y1={cy} x2={cx + size} y2={cy} stroke={fill} strokeWidth="1" transform={`rotate(45, ${cx}, ${cy})`} opacity="0.6" />
         <line x1={cx} y1={cy - size} x2={cx} y2={cy + size} stroke={fill} strokeWidth="1" transform={`rotate(45, ${cx}, ${cy})`} opacity="0.6" />
       </g>
