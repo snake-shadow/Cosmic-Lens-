@@ -1,6 +1,6 @@
 import React from 'react';
 import { CelestialData } from '../types';
-import { X, Globe, Thermometer, Weight, Ruler, AlertTriangle } from 'lucide-react';
+import { X, Globe, Thermometer, Weight, Ruler, AlertTriangle, Cpu } from 'lucide-react';
 
 interface InfoPanelProps {
   data: CelestialData | null;
@@ -29,7 +29,7 @@ const InfoPanel: React.FC<InfoPanelProps> = ({ data, onClose, loading }) => {
                   {data?.isSimulated && (
                     <div className="flex items-center gap-1 bg-yellow-500/20 text-yellow-400 px-2 py-1 rounded border border-yellow-500/30">
                       <AlertTriangle size={14} />
-                      <span className="text-[10px] font-orbitron tracking-wider">OFFLINE / SIMULATION</span>
+                      <span className="text-[10px] font-orbitron tracking-wider">OFFLINE DATA</span>
                     </div>
                   )}
                 </div>
@@ -54,11 +54,14 @@ const InfoPanel: React.FC<InfoPanelProps> = ({ data, onClose, loading }) => {
              </div>
           ) : data ? (
             <>
-              {/* Simulation Warning Message */}
+              {/* Simulation Warning */}
               {data.isSimulated && (
                 <div className="bg-yellow-500/10 border-l-4 border-yellow-500 p-4 rounded-r-lg">
-                  <p className="text-yellow-200 text-sm font-rajdhani">
-                    <strong>Note:</strong> This data is simulated or cached because the AI connection is currently offline. Connect a valid API key for live deep-space analysis.
+                  <p className="text-yellow-200 text-sm font-rajdhani flex items-start gap-2">
+                    <Cpu size={16} className="mt-0.5 shrink-0" />
+                    <span>
+                      <strong>Connection Info:</strong> This is a simulated result because the AI system is currently offline or the specific object "{data.name}" was not found in the local cache. 
+                    </span>
                   </p>
                 </div>
               )}
@@ -108,7 +111,7 @@ const InfoPanel: React.FC<InfoPanelProps> = ({ data, onClose, loading }) => {
                 <div className={`absolute inset-0 ${data.isSimulated ? 'bg-yellow-500/10' : 'bg-neon-purple/20'} blur-xl group-hover:opacity-100 opacity-50 transition-all`}></div>
                 <div className={`relative bg-space-900/80 p-5 rounded-xl border ${data.isSimulated ? 'border-yellow-500/30' : 'border-neon-purple/50'}`}>
                   <h3 className={`font-orbitron ${data.isSimulated ? 'text-yellow-400' : 'text-neon-purple'} text-sm mb-2 uppercase tracking-widest`}>
-                    {data.isSimulated ? 'System Note' : 'Anomaly Detected'}
+                    {data.isSimulated ? 'SYSTEM NOTE' : 'ANOMALY DETECTED'}
                   </h3>
                   <p className="font-rajdhani text-white italic text-lg">
                     "{data.funFact}"

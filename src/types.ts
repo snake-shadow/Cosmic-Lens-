@@ -11,7 +11,7 @@ export interface CelestialData {
     x: number; // Abstract value for graph plotting (e.g., distance)
     y: number; // Abstract value for graph plotting (e.g., luminosity/mass)
   };
-  isSimulated?: boolean;
+  isSimulated?: boolean; // New flag to indicate offline/mock data
 }
 
 export interface GraphNode {

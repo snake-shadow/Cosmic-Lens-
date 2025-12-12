@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Sparkles, Rocket } from 'lucide-react';
+import { Search, Sparkles, Rocket, Activity, Wifi, WifiOff } from 'lucide-react';
 import Background from './components/Background';
 import CosmicGraph from './components/CosmicGraph';
 import InfoPanel from './components/InfoPanel';
@@ -62,6 +62,7 @@ const App: React.FC = () => {
   };
 
   const handleNodeClick = (node: GraphNode) => {
+    // We still support click for deep dives if user wants more than the HUD offers
     initiateSearch(node.name);
   };
 
@@ -89,7 +90,7 @@ const App: React.FC = () => {
                 ) : (
                   <>
                     <div className="w-2 h-2 rounded-full bg-red-500"></div>
-                    <span className="text-[10px] font-orbitron text-red-400 tracking-wider">OFFLINE MODE</span>
+                    <span className="text-[10px] font-orbitron text-red-400 tracking-wider">OFFLINE / SIMULATION</span>
                   </>
                 )}
               </div>
@@ -108,7 +109,7 @@ const App: React.FC = () => {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder={isOnline ? "Ask Gemini anything (e.g., 'Ton 618')..." : "Search local database..."}
+            placeholder={isOnline ? "Ask Gemini anything (e.g., '3I/Atlas')..." : "Search database (e.g., 'Betelgeuse')..."}
             className={`w-full bg-space-800/50 backdrop-blur-md border ${isOnline ? 'border-neon-blue/30 focus:border-neon-blue' : 'border-red-500/30 focus:border-red-500'} text-white pl-12 pr-4 py-2 rounded-full focus:outline-none focus:shadow-[0_0_20px_rgba(0,243,255,0.3)] transition-all font-orbitron text-sm tracking-wide`}
           />
         </form>
