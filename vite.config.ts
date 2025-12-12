@@ -7,14 +7,15 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, '.', '');
   return {
     base: './', // Ensures relative paths for assets (works for GitHub Pages and usually Render)
-    plugins: [react()],
+    plugins: [
+      react()
+    ],
     define: {
       // Injects the API key into the client-side code at build time
       'process.env.API_KEY': JSON.stringify(env.API_KEY)
     },
-   build: {
-  outDir: 'dist',
-  chunkSizeWarningLimit: 1500,
-}
+    build: {
+      outDir: 'dist',
+    }
   }
 })

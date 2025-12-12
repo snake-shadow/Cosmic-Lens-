@@ -4,7 +4,7 @@ import Background from './components/Background';
 import CosmicGraph from './components/CosmicGraph';
 import InfoPanel from './components/InfoPanel';
 import HUD from './components/HUD';
-import { fetchCelestialInfo, fetchInterestingNodes } from './services/geminiService';
+import { fetchCelestialInfo, fetchInterestingNodes, isApiConfigured } from './services/geminiService';
 import { CelestialData, GraphNode } from './types';
 
 const App: React.FC = () => {
@@ -15,9 +15,12 @@ const App: React.FC = () => {
   const [graphNodes, setGraphNodes] = useState<GraphNode[]>([]);
   const [graphLoading, setGraphLoading] = useState(true);
   const [hoveredNode, setHoveredNode] = useState<GraphNode | null>(null);
+  const [isOnline, setIsOnline] = useState(false);
 
   // Initial Data Load
   useEffect(() => {
+    setIsOnline(isApiConfigured());
+
     const loadInitialGraph = async () => {
       const nodes = await fetchInterestingNodes();
       setGraphNodes(nodes);
@@ -59,7 +62,6 @@ const App: React.FC = () => {
   };
 
   const handleNodeClick = (node: GraphNode) => {
-    // We still support click for deep dives if user wants more than the HUD offers
     initiateSearch(node.name);
   };
 
@@ -73,10 +75,24 @@ const App: React.FC = () => {
             <div className="bg-neon-blue/20 p-2 rounded-lg border border-neon-blue/50">
               <Rocket className="text-neon-blue" size={24} />
             </div>
-            <div>
+            <div className="flex flex-col">
               <h1 className="text-3xl font-orbitron font-bold text-transparent bg-clip-text bg-gradient-to-r from-neon-blue via-white to-neon-purple">
                 COSMIC LENS
               </h1>
+              {/* Online/Offline Indicator */}
+              <div className="flex items-center gap-1.5 mt-1">
+                {isOnline ? (
+                  <>
+                    <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                    <span className="text-[10px] font-orbitron text-green-400 tracking-wider">AI SYSTEM ONLINE</span>
+                  </>
+                ) : (
+                  <>
+                    <div className="w-2 h-2 rounded-full bg-red-500"></div>
+                    <span className="text-[10px] font-orbitron text-red-400 tracking-wider">OFFLINE MODE</span>
+                  </>
+                )}
+              </div>
             </div>
         </div>
 
@@ -92,8 +108,8 @@ const App: React.FC = () => {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search database..."
-            className="w-full bg-space-800/50 backdrop-blur-md border border-neon-blue/30 text-white pl-12 pr-4 py-2 rounded-full focus:outline-none focus:border-neon-blue focus:shadow-[0_0_20px_rgba(0,243,255,0.3)] transition-all font-orbitron text-sm tracking-wide"
+            placeholder={isOnline ? "Ask Gemini anything (e.g., 'Ton 618')..." : "Search local database..."}
+            className={`w-full bg-space-800/50 backdrop-blur-md border ${isOnline ? 'border-neon-blue/30 focus:border-neon-blue' : 'border-red-500/30 focus:border-red-500'} text-white pl-12 pr-4 py-2 rounded-full focus:outline-none focus:shadow-[0_0_20px_rgba(0,243,255,0.3)] transition-all font-orbitron text-sm tracking-wide`}
           />
         </form>
       </header>
