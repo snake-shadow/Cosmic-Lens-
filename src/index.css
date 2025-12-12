@@ -1,5 +1,5 @@
 /* Global Styles */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
 
 html, body, #root {
   width: 100%;
@@ -9,39 +9,52 @@ html, body, #root {
   overflow: hidden;
   background-color: #050508;
   color: #e2e8f0;
-  font-family: 'Inter', sans-serif;
+  /* FORCE Space Theme Font Everywhere */
+  font-family: 'Space Grotesk', sans-serif !important;
   -webkit-font-smoothing: antialiased;
 }
 
-/* --- TYPOGRAPHY --- */
-h1, h2, h3, h4, h5, h6, .font-display {
+/* Ensure all headings and text inherit the space font */
+h1, h2, h3, h4, h5, h6, p, span, div, input, button {
   font-family: 'Space Grotesk', sans-serif;
 }
 
 /* --- NEON UTILITIES --- */
 .text-neon-blue {
-  color: #00f3ff;
+  color: #00f3ff !important;
   text-shadow: 0 0 10px rgba(0, 243, 255, 0.6);
 }
 
 .text-neon-green {
-  color: #00ff9d;
+  color: #00ff9d !important;
   text-shadow: 0 0 10px rgba(0, 255, 157, 0.6);
 }
 
-/* Robust Search Bar / Panel Style */
+/* --- GLASS PANELS (HUD, Info, Search) --- */
+
+/* Robust Neon Panel */
 .glass-panel-neon {
-  background: rgba(5, 5, 8, 0.85); /* Darker background for contrast */
+  background: rgba(5, 5, 8, 0.85);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(0, 243, 255, 0.4); /* Visible Neon Blue Border */
-  box-shadow: 0 0 15px rgba(0, 243, 255, 0.15); /* Glow */
+  border: 1px solid rgba(0, 243, 255, 0.4);
+  box-shadow: 0 0 15px rgba(0, 243, 255, 0.15);
   color: white;
 }
 
 .glass-panel-neon:focus-within {
   border-color: #00f3ff;
   box-shadow: 0 0 25px rgba(0, 243, 255, 0.3);
+}
+
+/* Standard Glass Panel (Used by HUD/InfoPanel) */
+.glass-panel {
+  background: rgba(10, 10, 15, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+  color: white;
 }
 
 /* Custom scrollbar */
@@ -65,8 +78,8 @@ h1, h2, h3, h4, h5, h6, .font-display {
   to { opacity: 1; transform: translateY(0); }
 }
 
-.animate-fade-in {
-  animation: fadeIn 0.5s ease-out forwards;
+.animate-enter {
+  animation: fadeIn 0.4s ease-out forwards;
 }
 
 .gemini-sparkle {

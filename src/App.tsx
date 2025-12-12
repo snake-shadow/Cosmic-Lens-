@@ -99,7 +99,7 @@ const App: React.FC = () => {
 
       {/* LAYER 2: UI OVERLAYS (Z-20+) */}
       
-      {/* Top Left: Logo - Uses Robust CSS classes for visibility */}
+      {/* Top Left: Logo */}
       <div className="absolute top-6 left-6 z-20 pointer-events-none select-none">
         <div className="flex items-center gap-4">
            {/* Logo Icon */}
@@ -117,10 +117,10 @@ const App: React.FC = () => {
            </div>
            
            <div>
-             <h1 className="font-display font-bold text-3xl tracking-wide leading-none flex flex-col sm:block">
-                {/* Changed to solid neon text class to prevent gradient invisibility */}
-                <span className="text-neon-blue mr-2">COSMIC</span>
-                <span className="font-light text-white">LENS</span>
+             {/* STRICTLY ENFORCED COLORS via style prop to fix black text bug */}
+             <h1 className="font-bold text-3xl tracking-wide leading-none flex flex-col sm:block" style={{ fontFamily: '"Space Grotesk", sans-serif' }}>
+                <span style={{ color: '#00f3ff', textShadow: '0 0 10px rgba(0, 243, 255, 0.6)' }} className="mr-2">COSMIC</span>
+                <span style={{ color: '#ffffff' }} className="font-light">LENS</span>
              </h1>
              <div className="flex items-center gap-2 mt-1">
                 <span className={`w-2 h-2 rounded-full shadow-[0_0_8px_currentColor] animate-pulse ${isSimulated ? 'bg-yellow-400 text-yellow-400' : 'bg-[#00ff9d] text-[#00ff9d]'}`}></span>
@@ -147,7 +147,7 @@ const App: React.FC = () => {
          <HUD node={hoveredNode} status={connectionStatus} />
       </div>
 
-      {/* Bottom: Omnibar - Uses new .glass-panel-neon class for guaranteed colors */}
+      {/* Bottom: Omnibar */}
       <div className="absolute bottom-10 left-0 right-0 z-30 flex justify-center px-4 pointer-events-none">
         <form onSubmit={handleSearch} className="w-full max-w-2xl pointer-events-auto transform transition-transform duration-300 hover:-translate-y-1">
            <div className="glass-panel-neon rounded-full p-2 flex items-center relative group transition-all duration-300">
