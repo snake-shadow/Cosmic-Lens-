@@ -2,120 +2,76 @@
 body {
   margin: 0;
   padding: 0;
-  background-color: #050505;
-  color: #e0e7ff;
-  overflow: hidden; /* Prevent scroll on the main dashboard */
+  background-color: #0e1016;
+  color: #e2e8f0;
+  overflow: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Custom scrollbar */
+/* Custom scrollbar - Slim and Minimal */
 ::-webkit-scrollbar {
-  width: 4px;
+  width: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #0b0d17;
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #00f3ff;
-  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
 }
 
-/* --- SCI-FI UTILITIES --- */
+/* --- UTILITIES --- */
 
-/* CRT Scanline Effect */
-.scanlines {
-  background: linear-gradient(
-    to bottom,
-    rgba(255,255,255,0),
-    rgba(255,255,255,0) 50%,
-    rgba(0,0,0,0.1) 50%,
-    rgba(0,0,0,0.1)
-  );
-  background-size: 100% 4px;
-  pointer-events: none;
+/* Modern Gradient Text */
+.text-gradient {
+  background: linear-gradient(135deg, #4da6ff 0%, #9d4dff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
-/* Holographic Panel */
-.holo-panel {
-  background: rgba(11, 13, 23, 0.7);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(0, 243, 255, 0.15);
-  box-shadow: 0 0 20px rgba(0, 243, 255, 0.05), inset 0 0 20px rgba(0, 243, 255, 0.02);
+/* Glassmorphism Panel */
+.glass-panel {
+  background: rgba(14, 16, 22, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
 }
 
-/* Text Glows */
-.text-neon-blue {
-  color: #00f3ff;
-  text-shadow: 0 0 5px rgba(0, 243, 255, 0.5);
+.glass-input {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
 }
-.text-neon-purple {
-  color: #bc13fe;
-  text-shadow: 0 0 5px rgba(188, 19, 254, 0.5);
-}
-
-.text-glow-blue {
-  text-shadow: 0 0 10px rgba(0, 243, 255, 0.4);
+.glass-input:focus-within {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(77, 166, 255, 0.5);
+  box-shadow: 0 0 0 4px rgba(77, 166, 255, 0.1);
 }
 
-/* --- CUSTOM ANIMATIONS --- */
+/* --- ANIMATIONS --- */
 
-@keyframes slideInRight {
-  from { opacity: 0; transform: translateX(20px); }
-  to { opacity: 1; transform: translateX(0); }
-}
-
-.hud-slide-in {
-  animation: slideInRight 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+@keyframes slideUpFade {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 0.4; }
+.animate-enter {
+  animation: slideUpFade 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-.hud-fade-in {
-  animation: fadeIn 0.5s ease-in forwards;
+/* Gemini Sparkle Logo Animation */
+@keyframes sparkle-spin {
+  0% { transform: scale(1) rotate(0deg); opacity: 1; }
+  50% { transform: scale(0.8) rotate(180deg); opacity: 0.8; }
+  100% { transform: scale(1) rotate(360deg); opacity: 1; }
 }
-
-@keyframes spin-slow {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-.animate-spin-slow {
-  animation: spin-slow 12s linear infinite;
-}
-
-@keyframes ping-slow {
-  75%, 100% {
-    transform: scale(2);
-    opacity: 0;
-  }
-}
-.animate-ping-slow {
-  animation: ping-slow 3s cubic-bezier(0, 0, 0.2, 1) infinite;
-}
-
-@keyframes pulse-glow {
-  0%, 100% { opacity: 1; filter: brightness(1); }
-  50% { opacity: 0.7; filter: brightness(1.2); }
-}
-.animate-pulse-glow {
-  animation: pulse-glow 3s ease-in-out infinite;
-}
-
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
-}
-.animate-float {
-  animation: float 6s ease-in-out infinite;
-}
-
-/* Grid Background Pattern */
-.bg-grid-pattern {
-  background-image: 
-    linear-gradient(rgba(0, 243, 255, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 243, 255, 0.05) 1px, transparent 1px);
-  background-size: 40px 40px;
+.gemini-sparkle {
+  animation: sparkle-spin 6s linear infinite;
 }

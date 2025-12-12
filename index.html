@@ -4,41 +4,34 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Cosmic Lens - Interactive Explorer</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Modern Tech Fonts: Space Grotesk for headers, Inter for UI -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
         theme: {
           extend: {
             fontFamily: {
-              orbitron: ['Orbitron', 'sans-serif'],
-              rajdhani: ['Rajdhani', 'sans-serif'],
+              sans: ['Inter', 'sans-serif'],
+              display: ['Space Grotesk', 'sans-serif'],
             },
             colors: {
-              space: {
-                900: '#0b0d17',
-                800: '#151932',
-                700: '#1f294f',
-              },
-              neon: {
-                blue: '#00f3ff',
-                purple: '#bc13fe',
-                pink: '#ff0099',
+              brand: {
+                dark: '#0e1016',
+                surface: '#181b25',
+                blue: '#4da6ff',
+                purple: '#9d4dff',
+                text: '#e2e8f0',
               }
             },
             animation: {
               'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
               'float': 'float 6s ease-in-out infinite',
-              'twinkle': 'twinkle 3s ease-in-out infinite',
             },
             keyframes: {
               float: {
                 '0%, 100%': { transform: 'translateY(0)' },
-                '50%': { transform: 'translateY(-20px)' },
-              },
-              twinkle: {
-                '0%, 100%': { opacity: '0.2', transform: 'scale(0.8)' },
-                '50%': { opacity: '1', transform: 'scale(1.2)' },
+                '50%': { transform: 'translateY(-10px)' },
               }
             }
           }
@@ -47,8 +40,8 @@
     </script>
     <style>
       body {
-        background-color: #050505;
-        color: #e0e7ff;
+        background-color: #0e1016;
+        color: #e2e8f0;
       }
     </style>
 <script type="importmap">

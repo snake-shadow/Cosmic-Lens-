@@ -8,73 +8,59 @@ interface CosmicGraphProps {
   onNodeHover: (node: GraphNode | null) => void;
 }
 
-// 1. Define Static Filters (Solved the flickering issue)
+// 1. Refined Filters
 const SvgFilters = () => (
   <defs>
-    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur stdDeviation="2.5" result="coloredBlur" />
-      <feMerge>
-        <feMergeNode in="coloredBlur" />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <filter id="intense-glow" x="-100%" y="-100%" width="300%" height="300%">
-      <feGaussianBlur stdDeviation="4" result="blur" />
+    <filter id="soft-glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="3" result="blur" />
       <feComposite in="SourceGraphic" in2="blur" operator="over" />
     </filter>
   </defs>
 );
 
-// 2. Custom Shapes for Celestial Objects
+// 2. Minimalist Shapes
 const RenderShape = (props: any) => {
   const { cx, cy, fill, payload } = props;
   const type = payload.type.toLowerCase();
-  const z = payload.z || 20;
+  const z = Math.max(10, payload.z); // Ensure minimum touch target
 
-  // BLACK HOLE
+  // BLACK HOLE - Subtle Void
   if (type.includes('black hole')) {
     return (
-      <g className="cursor-pointer hover:scale-110 transition-transform">
-        <circle cx={cx} cy={cy} r={z / 2} fill="#000" stroke={fill} strokeWidth="2" filter="url(#intense-glow)" />
-        <circle cx={cx} cy={cy} r={z / 2 + 5} fill="none" stroke={fill} strokeWidth="1" strokeDasharray="4 2" opacity="0.7">
-          <animateTransform attributeName="transform" type="rotate" from={`0 ${cx} ${cy}`} to={`360 ${cx} ${cy}`} dur="10s" repeatCount="indefinite" />
-        </circle>
+      <g className="cursor-pointer hover:scale-125 transition-transform duration-500">
+        <circle cx={cx} cy={cy} r={z / 2 + 4} fill="rgba(0,0,0,0.8)" stroke={fill} strokeWidth="1.5" />
+        <circle cx={cx} cy={cy} r={z / 2} fill="#000" />
       </g>
     );
   }
 
-  // PULSAR / NEUTRON STAR
-  if (type.includes('pulsar') || type.includes('neutron')) {
+  // PULSAR - Minimal Cross
+  if (type.includes('pulsar')) {
     return (
-      <g className="cursor-pointer">
-        <circle cx={cx} cy={cy} r={z / 3} fill="#fff" filter="url(#glow)" />
-        <line x1={cx - z} y1={cy - z} x2={cx + z} y2={cy + z} stroke={fill} strokeWidth="2" strokeLinecap="round" opacity="0.8" />
-        <line x1={cx + z} y1={cy - z} x2={cx - z} y2={cy + z} stroke={fill} strokeWidth="2" strokeLinecap="round" opacity="0.8" />
-        <circle cx={cx} cy={cy} r={z} fill="none" stroke={fill} opacity="0.3">
-           <animate attributeName="r" values={`${z};${z*1.5};${z}`} dur="1s" repeatCount="indefinite" />
-           <animate attributeName="opacity" values="0.3;0;0.3" dur="1s" repeatCount="indefinite" />
-        </circle>
+      <g className="cursor-pointer hover:scale-125 transition-transform duration-500">
+        <circle cx={cx} cy={cy} r={4} fill="#fff" />
+        <line x1={cx - z} y1={cy} x2={cx + z} y2={cy} stroke={fill} strokeWidth="1" strokeOpacity="0.6" />
+        <line x1={cx} y1={cy - z} x2={cx} y2={cy + z} stroke={fill} strokeWidth="1" strokeOpacity="0.6" />
+        <circle cx={cx} cy={cy} r={z} fill={fill} fillOpacity="0.2" />
       </g>
     );
   }
 
-  // PLANET / EXOPLANET
+  // PLANET - Solid Circle with Ring
   if (type.includes('planet') || type.includes('earth')) {
     return (
-      <g className="cursor-pointer">
+      <g className="cursor-pointer hover:scale-125 transition-transform duration-500">
         <circle cx={cx} cy={cy} r={z / 2.5} fill={fill} />
-        <ellipse cx={cx} cy={cy} rx={z / 1.5} ry={z / 4} fill="none" stroke={fill} strokeWidth="1" transform={`rotate(-15, ${cx}, ${cy})`} opacity="0.6" />
+        <ellipse cx={cx} cy={cy} rx={z / 1.5} ry={z / 5} fill="none" stroke={fill} strokeWidth="1" transform={`rotate(-20, ${cx}, ${cy})`} opacity="0.6" />
       </g>
     );
   }
 
-  // DEFAULT STAR / NEBULA
+  // STAR - Soft Glow
   return (
-    <g className="cursor-pointer">
-      <circle cx={cx} cy={cy} r={z / 3} fill={fill} filter="url(#glow)" opacity="0.9">
-         <animate attributeName="opacity" values="0.9;0.4;0.9" dur={`${Math.random() * 2 + 2}s`} repeatCount="indefinite" />
-      </circle>
-      <circle cx={cx} cy={cy} r={z / 6} fill="#fff" />
+    <g className="cursor-pointer hover:scale-150 transition-transform duration-300">
+      <circle cx={cx} cy={cy} r={z / 3} fill={fill} filter="url(#soft-glow)" opacity="0.8" />
+      <circle cx={cx} cy={cy} r={2} fill="#fff" />
     </g>
   );
 };
@@ -82,17 +68,23 @@ const RenderShape = (props: any) => {
 const CosmicGraph: React.FC<CosmicGraphProps> = ({ data, onNodeClick, onNodeHover }) => {
   return (
     <div className="w-full h-full relative" onMouseLeave={() => onNodeHover(null)}>
+      
+      {/* Background Grid - Very Subtle */}
+      <div className="absolute inset-0 pointer-events-none opacity-20" 
+           style={{
+             backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px)',
+             backgroundSize: '40px 40px'
+           }}>
+      </div>
+
       <ResponsiveContainer width="100%" height="100%">
-        <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
+        <ScatterChart margin={{ top: 60, right: 60, bottom: 60, left: 60 }}>
           <SvgFilters />
-          <XAxis type="number" dataKey="x" hide domain={['dataMin - 5', 'dataMax + 5']} />
-          <YAxis type="number" dataKey="y" hide domain={['dataMin - 5', 'dataMax + 5']} />
-          <ZAxis type="number" dataKey="z" range={[60, 600]} />
+          <XAxis type="number" dataKey="x" hide domain={['dataMin - 10', 'dataMax + 10']} />
+          <YAxis type="number" dataKey="y" hide domain={['dataMin - 10', 'dataMax + 10']} />
+          <ZAxis type="number" dataKey="z" range={[80, 800]} />
           
-          <Tooltip 
-            cursor={{ strokeDasharray: '3 3', stroke: 'rgba(255,255,255,0.3)' }}
-            content={() => null} // Disable default tooltip, using HUD instead
-          />
+          <Tooltip content={() => null} cursor={{ strokeDasharray: '4 4', stroke: 'rgba(255, 255, 255, 0.2)', strokeWidth: 1 }} />
           
           <Scatter 
             name="Cosmic Objects" 

@@ -1,6 +1,6 @@
 import React from 'react';
 import { CelestialData } from '../types';
-import { X, Globe, Thermometer, Weight, Ruler, AlertTriangle, Cpu } from 'lucide-react';
+import { X, Globe, Thermometer, Weight, Ruler, AlertTriangle, Sparkles } from 'lucide-react';
 
 interface InfoPanelProps {
   data: CelestialData | null;
@@ -12,112 +12,97 @@ const InfoPanel: React.FC<InfoPanelProps> = ({ data, onClose, loading }) => {
   if (!data && !loading) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm transition-all duration-500">
-      <div className={`relative w-full max-w-2xl bg-space-800/90 border ${data?.isSimulated ? 'border-yellow-500/40' : 'border-neon-blue/30'} rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col max-h-[90vh]`}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-sm transition-all animate-enter">
+      <div className={`relative w-full max-w-3xl glass-panel rounded-3xl overflow-hidden flex flex-col max-h-[90vh] shadow-2xl`}>
         
-        {/* Header */}
-        <div className="p-6 border-b border-white/10 flex justify-between items-start bg-gradient-to-r from-space-700/50 to-transparent">
-          <div className="flex-1">
-            {loading ? (
-               <div className="h-8 w-48 bg-white/10 animate-pulse rounded"></div>
-            ) : (
-              <>
-                <div className="flex items-center gap-3">
-                  <h2 className="text-3xl md:text-4xl font-orbitron font-bold text-transparent bg-clip-text bg-gradient-to-r from-neon-blue to-neon-purple">
-                    {data?.name}
-                  </h2>
-                  {data?.isSimulated && (
-                    <div className="flex items-center gap-1 bg-yellow-500/20 text-yellow-400 px-2 py-1 rounded border border-yellow-500/30">
-                      <AlertTriangle size={14} />
-                      <span className="text-[10px] font-orbitron tracking-wider">OFFLINE DATA</span>
-                    </div>
-                  )}
-                </div>
-                <p className="text-neon-pink font-rajdhani text-xl mt-1 tracking-wide uppercase">{data?.type}</p>
-              </>
-            )}
+        {/* Header Area */}
+        <div className="p-8 border-b border-white/5 bg-gradient-to-b from-white/[0.02] to-transparent">
+          <div className="flex justify-between items-start">
+            <div className="flex-1">
+              {loading ? (
+                 <div className="h-10 w-64 bg-white/5 animate-pulse rounded-lg mb-2"></div>
+              ) : (
+                <>
+                  <div className="flex items-center gap-3 mb-2">
+                    <h2 className="text-4xl md:text-5xl font-display font-bold text-white tracking-tight">
+                      {data?.name}
+                    </h2>
+                    {data?.isSimulated && (
+                       <span className="bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 p-1.5 rounded-full" title="Simulated Data">
+                          <AlertTriangle size={16} />
+                       </span>
+                    )}
+                  </div>
+                  <span className="inline-block px-3 py-1 rounded-full bg-brand-blue/10 text-brand-blue text-xs font-semibold uppercase tracking-wide border border-brand-blue/20">
+                    {data?.type}
+                  </span>
+                </>
+              )}
+            </div>
+            <button 
+              onClick={onClose}
+              className="p-2 bg-white/5 hover:bg-white/10 rounded-full transition-colors text-gray-400 hover:text-white"
+            >
+              <X size={20} />
+            </button>
           </div>
-          <button 
-            onClick={onClose}
-            className="p-2 hover:bg-white/10 rounded-full transition-colors text-white/70 hover:text-white"
-          >
-            <X size={24} />
-          </button>
         </div>
 
-        {/* Content */}
-        <div className="p-6 overflow-y-auto custom-scrollbar space-y-6">
+        {/* Content Area */}
+        <div className="p-8 overflow-y-auto custom-scrollbar space-y-8 bg-brand-dark/50">
           {loading ? (
-             <div className="flex flex-col items-center justify-center py-20 space-y-4">
-                <div className="w-16 h-16 border-4 border-neon-blue border-t-transparent rounded-full animate-spin"></div>
-                <p className="font-orbitron text-neon-blue animate-pulse">Establishing Uplink...</p>
+             <div className="flex flex-col items-center justify-center py-12">
+                <div className="w-12 h-12 border-4 border-brand-purple border-t-transparent rounded-full animate-spin mb-4"></div>
+                <p className="font-medium text-brand-purple animate-pulse">Establishing Deep Space Uplink...</p>
              </div>
           ) : data ? (
             <>
-              {/* Simulation Warning */}
-              {data.isSimulated && (
-                <div className="bg-yellow-500/10 border-l-4 border-yellow-500 p-4 rounded-r-lg">
-                  <p className="text-yellow-200 text-sm font-rajdhani flex items-start gap-2">
-                    <Cpu size={16} className="mt-0.5 shrink-0" />
-                    <span>
-                      <strong>Connection Info:</strong> This is a simulated result because the AI system is currently offline or the specific object "{data.name}" was not found in the local cache. 
-                    </span>
-                  </p>
-                </div>
-              )}
-
-              {/* Stats Grid */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="bg-space-900/50 p-3 rounded-lg border border-white/5">
-                  <div className="flex items-center gap-2 text-neon-blue mb-1">
-                    <Ruler size={14} />
-                    <span className="text-xs font-orbitron">DISTANCE</span>
-                  </div>
-                  <p className="font-rajdhani font-semibold text-lg">{data.distance}</p>
-                </div>
-                <div className="bg-space-900/50 p-3 rounded-lg border border-white/5">
-                  <div className="flex items-center gap-2 text-neon-purple mb-1">
-                    <Weight size={14} />
-                    <span className="text-xs font-orbitron">MASS</span>
-                  </div>
-                  <p className="font-rajdhani font-semibold text-lg truncate" title={data.mass}>{data.mass}</p>
-                </div>
-                <div className="bg-space-900/50 p-3 rounded-lg border border-white/5">
-                  <div className="flex items-center gap-2 text-neon-pink mb-1">
-                    <Thermometer size={14} />
-                    <span className="text-xs font-orbitron">TEMP</span>
-                  </div>
-                  <p className="font-rajdhani font-semibold text-lg">{data.temperature}</p>
-                </div>
-                <div className="bg-space-900/50 p-3 rounded-lg border border-white/5">
-                  <div className="flex items-center gap-2 text-yellow-400 mb-1">
-                    <Globe size={14} />
-                    <span className="text-xs font-orbitron">DISCOVERED</span>
-                  </div>
-                  <p className="font-rajdhani font-semibold text-lg">{data.discoveryYear}</p>
-                </div>
-              </div>
-
-              {/* Description */}
-              <div className="bg-gradient-to-br from-white/5 to-transparent p-5 rounded-xl border border-white/5">
-                <h3 className="font-orbitron text-white text-lg mb-2">Analysis</h3>
-                <p className="font-rajdhani text-lg leading-relaxed text-gray-300">
+              {/* Primary Description */}
+              <div className="prose prose-invert max-w-none">
+                <p className="text-lg text-gray-300 leading-relaxed font-light">
                   {data.description}
                 </p>
               </div>
 
-              {/* Fun Fact */}
-              <div className="relative overflow-hidden group">
-                <div className={`absolute inset-0 ${data.isSimulated ? 'bg-yellow-500/10' : 'bg-neon-purple/20'} blur-xl group-hover:opacity-100 opacity-50 transition-all`}></div>
-                <div className={`relative bg-space-900/80 p-5 rounded-xl border ${data.isSimulated ? 'border-yellow-500/30' : 'border-neon-purple/50'}`}>
-                  <h3 className={`font-orbitron ${data.isSimulated ? 'text-yellow-400' : 'text-neon-purple'} text-sm mb-2 uppercase tracking-widest`}>
-                    {data.isSimulated ? 'SYSTEM NOTE' : 'ANOMALY DETECTED'}
-                  </h3>
-                  <p className="font-rajdhani text-white italic text-lg">
-                    "{data.funFact}"
-                  </p>
-                </div>
+              {/* Data Grid */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {[
+                  { label: "Distance", value: data.distance, icon: Ruler, color: "text-brand-blue" },
+                  { label: "Mass", value: data.mass, icon: Weight, color: "text-brand-purple" },
+                  { label: "Temp", value: data.temperature, icon: Thermometer, color: "text-rose-400" },
+                  { label: "Discovered", value: data.discoveryYear, icon: Globe, color: "text-yellow-400" },
+                ].map((stat, i) => (
+                  <div key={i} className="bg-brand-surface p-4 rounded-2xl border border-white/5 hover:border-white/10 transition-colors">
+                    <div className={`flex items-center gap-2 ${stat.color} mb-2`}>
+                      <stat.icon size={16} />
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-gray-500">{stat.label}</span>
+                    </div>
+                    <p className="font-display font-semibold text-white truncate text-base" title={stat.value}>
+                      {stat.value}
+                    </p>
+                  </div>
+                ))}
               </div>
+
+              {/* Fun Fact Card */}
+              <div className="relative group overflow-hidden rounded-2xl">
+                 <div className="absolute inset-0 bg-gradient-to-r from-brand-purple/20 to-brand-blue/20 opacity-50 group-hover:opacity-100 transition-opacity"></div>
+                 <div className="relative p-6 border border-white/10 bg-white/[0.02] backdrop-blur-sm">
+                    <div className="flex items-center gap-2 mb-3 text-brand-text">
+                       <Sparkles size={16} className="text-yellow-300" />
+                       <h3 className="text-xs font-bold uppercase tracking-widest text-white/70">Did you know?</h3>
+                    </div>
+                    <p className="text-white font-medium italic leading-relaxed">
+                      "{data.funFact}"
+                    </p>
+                 </div>
+              </div>
+              
+              {data.isSimulated && (
+                <p className="text-xs text-center text-gray-600 pt-4">
+                  * Data simulated for demonstration purposes. Connect API Key for live results.
+                </p>
+              )}
             </>
           ) : null}
         </div>

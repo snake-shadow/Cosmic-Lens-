@@ -1,93 +1,69 @@
 import React from 'react';
 import { GraphNode } from '../types';
-import { Scan, Activity, Wifi, WifiOff } from 'lucide-react';
+import { Crosshair, Radio, Activity } from 'lucide-react';
 
 interface HUDProps {
   node: GraphNode | null;
-  status: string; // Now receives the specific message (e.g. "KEY MISSING")
+  status: string;
 }
 
 const HUD: React.FC<HUDProps> = ({ node, status }) => {
-  const isOnline = status === 'ONLINE';
-  
+  if (!node) return null;
+
   return (
-    <div className="w-full h-full flex flex-col p-4 relative overflow-hidden">
-      {/* HUD Background Decorations */}
-      <div className="absolute top-0 right-0 w-32 h-32 border-t-2 border-r-2 border-neon-blue/30 rounded-tr-3xl pointer-events-none"></div>
-      <div className="absolute bottom-0 right-0 w-16 h-16 border-b-2 border-r-2 border-neon-blue/30 rounded-br-3xl pointer-events-none"></div>
-      
-      {/* HEADER */}
-      <div className="flex justify-between items-center mb-6 border-b border-white/10 pb-2">
-        <div className="flex items-center gap-2 text-neon-blue">
-          <Activity size={18} className={isOnline ? "animate-pulse" : ""} />
-          <span className="font-orbitron text-sm tracking-widest">ANALYSIS_DECK_01</span>
-        </div>
-        <div className="flex items-center gap-2 font-mono text-xs">
-           {isOnline ? <Wifi size={12} className="text-green-400" /> : <WifiOff size={12} className="text-red-400" />}
-           <span className={isOnline ? "text-green-400" : "text-red-400 animate-pulse"}>
-              {status}
-           </span>
-        </div>
-      </div>
+    <div className="pointer-events-auto w-full animate-enter">
+      <div className="glass-panel rounded-3xl p-6 relative overflow-hidden group hover:bg-white/[0.02] transition-colors">
+        
+        {/* Decorative Header Line */}
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-brand-blue via-brand-purple to-transparent opacity-60"></div>
 
-      {/* CONTENT AREA */}
-      <div className="flex-1 flex flex-col relative">
-        {node ? (
-          <div className="flex flex-col h-full hud-slide-in">
-            {/* Object Title */}
-            <div className="mb-6 relative">
-              <div className="absolute -left-4 top-1 w-1 h-full bg-neon-purple/50"></div>
-              <p className="font-orbitron text-xs text-neon-purple tracking-widest uppercase mb-1">TARGET LOCKED</p>
-              <h1 className="font-rajdhani font-bold text-5xl text-white text-glow-blue leading-none break-words">{node.name}</h1>
-              <div className="mt-2 flex items-center gap-2">
-                 <span className="px-2 py-0.5 bg-neon-blue/10 border border-neon-blue/30 text-neon-blue text-xs font-mono rounded">{node.type}</span>
-                 {node.distance && <span className="px-2 py-0.5 bg-white/5 border border-white/20 text-gray-300 text-xs font-mono rounded">{node.distance}</span>}
+        {/* Header */}
+        <div className="flex justify-between items-start mb-5">
+           <div>
+              <div className="flex items-center gap-1.5 text-brand-blue mb-1.5">
+                 <Crosshair size={12} strokeWidth={3} />
+                 <span className="text-[10px] font-bold tracking-wider uppercase opacity-80">Target Lock</span>
               </div>
-            </div>
+              <h2 className="font-display font-bold text-3xl text-white leading-tight">{node.name}</h2>
+           </div>
+           <div className="flex flex-col items-end">
+             <span className="px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-[10px] font-semibold text-gray-300 uppercase tracking-wide">
+               {node.type}
+             </span>
+           </div>
+        </div>
 
-            {/* Simulated Data Stream */}
-            <div className="bg-black/40 border border-white/10 rounded-lg p-4 mb-4 flex-1 overflow-hidden relative group">
-               <div className="scanlines absolute inset-0 opacity-20 pointer-events-none"></div>
-               <div className="absolute inset-0 bg-neon-blue/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
-               <p className="font-rajdhani text-lg leading-relaxed text-gray-200">
-                 {node.description || "Data fragments retrieved. High-energy signature detected. Further analysis required."}
-               </p>
-               
-               {/* Decorative Fake Code */}
-               <div className="mt-6 font-mono text-[10px] text-green-500/50 leading-tight select-none">
-                  {`> ACCESSING RECORD ${node.x.toFixed(0)}-${node.y.toFixed(0)}`} <br/>
-                  {`> SPECTRAL ANALYSIS: ${node.color.toUpperCase()}`} <br/>
-                  {`> GRAVITATIONAL LENSING: DETECTED`} <br/>
-                  {`> ...`}
-               </div>
-            </div>
+        {/* Content */}
+        <div className="space-y-5">
+           <div className="text-sm font-sans text-gray-400 leading-relaxed border-l-2 border-brand-purple/30 pl-3">
+              {node.description || "Waiting for deep scan analysis..."}
+           </div>
 
-            {/* Coordinates / Footer */}
-            <div className="mt-auto grid grid-cols-3 gap-2 font-mono text-xs text-gray-500 border-t border-white/10 pt-4">
-               <div>
-                  <span className="block text-gray-700">X-POS</span>
-                  {node.x.toFixed(4)}
-               </div>
-               <div>
-                  <span className="block text-gray-700">Y-POS</span>
-                  {node.y.toFixed(4)}
-               </div>
-               <div>
-                  <span className="block text-gray-700">MASS</span>
-                  EST. {node.z}
-               </div>
-            </div>
-          </div>
-        ) : (
-          /* IDLE STATE */
-          <div className="flex-1 flex flex-col items-center justify-center text-center opacity-40 hud-fade-in">
-            <Scan size={80} className="text-neon-blue animate-spin-slow mb-4" />
-            <h2 className="font-orbitron text-xl text-white">SCANNER IDLE</h2>
-            <p className="font-rajdhani mt-2 max-w-xs mx-auto">
-              Hover cursor over sectors in the main view to initiate data stream.
-            </p>
-          </div>
-        )}
+           <div className="grid grid-cols-2 gap-3">
+              <div className="bg-brand-surface rounded-xl p-3 border border-white/5">
+                 <span className="block text-[10px] text-gray-500 font-bold uppercase mb-1">Distance</span>
+                 <span className="text-sm font-medium text-brand-blue truncate block">
+                    {node.distance || "Unknown"}
+                 </span>
+              </div>
+              <div className="bg-brand-surface rounded-xl p-3 border border-white/5">
+                 <span className="block text-[10px] text-gray-500 font-bold uppercase mb-1">Mass Est.</span>
+                 <span className="text-sm font-medium text-white block">
+                    {node.z} <span className="text-gray-600 text-xs">Solar Masses</span>
+                 </span>
+              </div>
+           </div>
+           
+           <div className="pt-4 border-t border-white/5 flex justify-between items-center">
+              <div className="flex items-center gap-2">
+                 <Radio size={14} className="text-brand-purple animate-pulse" />
+                 <span className="text-[10px] text-gray-500 font-medium">LIVE TELEMETRY</span>
+              </div>
+              <span className="font-mono text-[10px] text-gray-600">
+                {node.x.toFixed(2)} / {node.y.toFixed(2)}
+              </span>
+           </div>
+        </div>
       </div>
     </div>
   );
