@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Sparkles, Rocket, Database } from 'lucide-react';
+import { Search, Sparkles, Rocket, Database, AlertTriangle } from 'lucide-react';
 import Background from './components/Background';
 import CosmicGraph from './components/CosmicGraph';
 import InfoPanel from './components/InfoPanel';
 import HUD from './components/HUD';
-import { fetchCelestialInfo, fetchInterestingNodes, isApiConfigured } from './services/geminiService';
+import { fetchCelestialInfo, fetchInterestingNodes, checkApiConnection } from './services/geminiService';
 import { CelestialData, GraphNode } from './types';
 
 const App: React.FC = () => {
@@ -15,17 +15,21 @@ const App: React.FC = () => {
   const [graphNodes, setGraphNodes] = useState<GraphNode[]>([]);
   const [graphLoading, setGraphLoading] = useState(true);
   const [hoveredNode, setHoveredNode] = useState<GraphNode | null>(null);
-  const [isOnline, setIsOnline] = useState(false);
+  const [connectionStatus, setConnectionStatus] = useState<'checking' | 'online' | 'offline'>('checking');
 
   useEffect(() => {
-    setIsOnline(true);
+    const initializeSystem = async () => {
+      // 1. Check API Connection (validates key)
+      const isConnected = await checkApiConnection();
+      setConnectionStatus(isConnected ? 'online' : 'offline');
 
-    const loadInitialGraph = async () => {
+      // 2. Load Graph
       const nodes = await fetchInterestingNodes();
       setGraphNodes(nodes);
       setGraphLoading(false);
     };
-    loadInitialGraph();
+    
+    initializeSystem();
   }, []);
 
   const handleSearch = async (e: React.FormEvent) => {
@@ -77,9 +81,29 @@ const App: React.FC = () => {
               <h1 className="text-3xl font-orbitron font-bold text-transparent bg-clip-text bg-gradient-to-r from-neon-blue via-white to-neon-purple drop-shadow-sm">
                 COSMIC LENS
               </h1>
+              
+              {/* Connection Status Indicator */}
               <div className="flex items-center gap-2 mt-1">
-                <div className="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_5px_#22c55e] animate-pulse"></div>
-                <span className="text-[10px] font-orbitron text-green-400 tracking-wider">SYSTEM ONLINE</span>
+                {connectionStatus === 'checking' && (
+                   <>
+                     <div className="w-1.5 h-1.5 rounded-full bg-yellow-500 animate-pulse"></div>
+                     <span className="text-[10px] font-orbitron text-yellow-500 tracking-wider">INITIALIZING...</span>
+                   </>
+                )}
+                {connectionStatus === 'online' && (
+                   <>
+                     <div className="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_5px_#22c55e] animate-pulse"></div>
+                     <span className="text-[10px] font-orbitron text-green-400 tracking-wider">SYSTEM ONLINE</span>
+                   </>
+                )}
+                {connectionStatus === 'offline' && (
+                   <>
+                     <div className="w-1.5 h-1.5 rounded-full bg-red-500 shadow-[0_0_5px_#ef4444]"></div>
+                     <span className="text-[10px] font-orbitron text-red-400 tracking-wider flex items-center gap-1">
+                       OFFLINE / SIMULATION MODE
+                     </span>
+                   </>
+                )}
               </div>
             </div>
         </div>
@@ -116,7 +140,7 @@ const App: React.FC = () => {
                        <Database size={20} className="text-neon-blue/50" />
                     </div>
                   </div>
-                  <p className="font-orbitron text-xs tracking-[0.3em] text-neon-blue animate-pulse">INITIALIZING...</p>
+                  <p className="font-orbitron text-xs tracking-[0.3em] text-neon-blue animate-pulse">SCANNING SECTOR...</p>
                </div>
             </div>
           ) : (
@@ -126,6 +150,19 @@ const App: React.FC = () => {
                 onNodeClick={handleNodeClick} 
                 onNodeHover={setHoveredNode} 
               />
+              
+              {/* Quick Filters */}
+              <div className="absolute bottom-4 left-4 right-4 flex gap-2 overflow-x-auto pb-2 scrollbar-hide pointer-events-auto z-10">
+                 {['Stars', 'Nebulae', 'Black Holes', 'Exoplanets', 'Pulsars'].map((category) => (
+                    <button 
+                      key={category}
+                      onClick={() => initiateSearch(category)}
+                      className="whitespace-nowrap bg-black/60 hover:bg-neon-blue/20 border border-white/20 hover:border-neon-blue/60 px-3 py-1.5 rounded text-[10px] font-orbitron text-gray-300 hover:text-white backdrop-blur-md transition-all"
+                    >
+                      {category}
+                    </button>
+                 ))}
+              </div>
             </div>
           )}
         </main>

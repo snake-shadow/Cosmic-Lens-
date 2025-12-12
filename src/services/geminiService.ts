@@ -45,7 +45,6 @@ const generateProceduralData = (name: string): CelestialData => {
 };
 
 // --- MOCK DATA ---
-// Rich initial dataset for the graph
 const MOCK_NODES: GraphNode[] = [
   { name: "Betelgeuse", type: "Red Supergiant", x: 20, y: 80, z: 40, color: "#ff4500", distance: "642 LY", description: "A red supergiant nearing the end of its life, expected to go supernova." },
   { name: "Sirius B", type: "White Dwarf", x: 10, y: 20, z: 15, color: "#ffffff", distance: "8.6 LY", description: "The faint white dwarf companion to the brightest star in the night sky." },
@@ -79,7 +78,6 @@ const MOCK_NODES: GraphNode[] = [
 const apiKey = process.env.API_KEY;
 let ai: GoogleGenAI | null = null;
 
-// Safer check for API key validity
 if (apiKey && typeof apiKey === 'string' && apiKey.startsWith("AIza")) {
   ai = new GoogleGenAI({ apiKey });
 }
@@ -88,15 +86,30 @@ export const isApiConfigured = () => !!ai;
 
 const modelName = 'gemini-2.5-flash';
 
-// Helper to simulate network delay for realism in Mock Mode
 const simulateDelay = async () => new Promise(resolve => setTimeout(resolve, 600));
+
+// NEW: Explicitly check connection validity
+export const checkApiConnection = async (): Promise<boolean> => {
+  if (!ai) return false;
+  try {
+    // Attempt a very cheap generation to verify key validity and quota
+    await ai.models.generateContent({
+      model: modelName,
+      contents: "ping",
+    });
+    return true;
+  } catch (e) {
+    console.warn("API Connection Check Failed (Key invalid or Quota exceeded):", e);
+    return false;
+  }
+};
 
 export const fetchCelestialInfo = async (query: string): Promise<CelestialData> => {
   // 1. Fallback to Procedural Mock Data if no API key is present
   if (!ai || !apiKey) {
     await simulateDelay();
     
-    // Check known mock nodes first for consistency
+    // Check known mock nodes first
     const knownNode = MOCK_NODES.find(n => n.name.toLowerCase().includes(query.toLowerCase()));
     if (knownNode) {
       return {
@@ -112,8 +125,6 @@ export const fetchCelestialInfo = async (query: string): Promise<CelestialData> 
         isSimulated: true
       };
     }
-
-    // If completely unknown, generate it!
     return generateProceduralData(query);
   }
 
@@ -158,14 +169,12 @@ export const fetchCelestialInfo = async (query: string): Promise<CelestialData> 
   } catch (error) {
     console.error("Gemini API Error (Fallback):", error);
     await simulateDelay();
-    // Fallback to procedural even if API fails (quota/network)
     return generateProceduralData(query);
   }
 };
 
 export const fetchInterestingNodes = async (): Promise<GraphNode[]> => {
   if (!ai || !apiKey) {
-    // Return the large mock dataset immediately
     return MOCK_NODES;
   }
 

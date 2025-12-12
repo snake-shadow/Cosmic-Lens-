@@ -22,7 +22,7 @@ const MinimalTooltip = ({ active, payload }: any) => {
   return null;
 };
 
-// Global filter definition to prevent re-rendering flicker and duplicate IDs
+// GLOBAL DEFS to prevent flickering/glitching
 const GraphDefs = () => (
   <defs>
     <filter id="glow-master" x="-50%" y="-50%" width="200%" height="200%">
@@ -38,9 +38,6 @@ const GraphDefs = () => (
         <feMergeNode in="coloredBlur" />
         <feMergeNode in="SourceGraphic" />
       </feMerge>
-    </filter>
-    <filter id="blur-generic">
-      <feGaussianBlur in="SourceGraphic" stdDeviation="3" />
     </filter>
   </defs>
 );
@@ -75,23 +72,10 @@ const CustomShape = (props: any) => {
     );
   }
 
-  // --- NEBULA ---
-  if (type.includes('nebula') || type.includes('cloud')) {
-     return (
-       <g className="cursor-pointer hover:brightness-150 transition-all duration-500">
-         <circle cx={cx - 5} cy={cy - 2} r={size / 2} fill={fill} opacity="0.4" filter="url(#blur-generic)" />
-         <circle cx={cx + 5} cy={cy + 3} r={size / 2.5} fill={fill} opacity="0.3" filter="url(#blur-generic)" />
-         <circle cx={cx} cy={cy} r={size / 3} fill="#fff" opacity="0.2" filter="url(#blur-generic)" />
-         <circle cx={cx - 2} cy={cy - 2} r={1} fill="#fff" opacity="0.8" />
-         <circle cx={cx + 3} cy={cy + 2} r={1} fill="#fff" opacity="0.8" />
-       </g>
-     );
-  }
-
   // --- GALAXY ---
   if (type.includes('galaxy')) {
     return (
-      <g className="cursor-pointer hover:brightness-125 transition-all">
+      <g className="cursor-pointer">
         <ellipse cx={cx} cy={cy} rx={size} ry={size/3} fill={fill} opacity="0.2" transform={`rotate(45, ${cx}, ${cy})`} />
         <ellipse cx={cx} cy={cy} rx={size} ry={size/3} fill={fill} opacity="0.2" transform={`rotate(135, ${cx}, ${cy})`} />
         <circle cx={cx} cy={cy} r={size/4} fill="#fff" filter="url(#glow-master)" />
@@ -119,12 +103,13 @@ const CosmicGraph: React.FC<CosmicGraphProps> = ({ data, onNodeClick, onNodeHove
         </h3>
       </div>
         
-      {/* Chart Area - Enforced Height & Padding */}
+      {/* Chart Area */}
       <div className="flex-1 w-full relative min-h-[500px]">
         <div className="absolute inset-0">
           <ResponsiveContainer width="100%" height="100%">
             <ScatterChart margin={{ top: 40, right: 40, bottom: 40, left: 40 }}>
               <GraphDefs />
+              {/* Adding padding to domain spreads nodes out so they aren't 'stuck' */}
               <XAxis type="number" dataKey="x" name="Distance" hide domain={['dataMin - 10', 'dataMax + 10']} />
               <YAxis type="number" dataKey="y" name="Energy" hide domain={['dataMin - 10', 'dataMax + 10']} />
               <ZAxis type="number" dataKey="z" range={[50, 600]} />
