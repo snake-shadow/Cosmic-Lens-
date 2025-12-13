@@ -20,22 +20,32 @@ const App: React.FC = () => {
 
   useEffect(() => {
     const init = async () => {
-      // 1. Check Connection
-      const status = await checkApiConnection();
-      
-      if (status.success) {
-        setConnectionStatus('SYSTEM ONLINE');
-        setIsSimulated(false);
-      } else {
-        console.warn("API Connection issue, switching to simulation:", status.message);
-        setConnectionStatus('SIMULATION MODE');
-        setIsSimulated(true);
-      }
+      try {
+        // 1. Check Connection
+        const status = await checkApiConnection();
+        
+        if (status.success) {
+          setConnectionStatus('SYSTEM ONLINE');
+          setIsSimulated(false);
+        } else {
+          console.warn("API Connection issue, switching to simulation:", status.message);
+          setConnectionStatus('SIMULATION MODE');
+          setIsSimulated(true);
+        }
 
-      // 2. Fetch Nodes
-      const nodes = await fetchInterestingNodes();
-      setGraphNodes(nodes);
-      setGraphLoading(false);
+        // 2. Fetch Nodes - SAFE VERSION
+        const nodes = await Promise.race([
+          fetchInterestingNodes(),
+          new Promise<GraphNode[]>(resolve => setTimeout(() => resolve([]), 3000))
+        ]);
+        setGraphNodes(nodes);
+      } catch (error) {
+        console.warn('Graph load failed, using empty graph:', error);
+        setConnectionStatus('SIMULATION MODE');
+        setGraphNodes([]);
+      } finally {
+        setGraphLoading(false);  // SPINNER ALWAYS STOPS
+      }
     };
     init();
   }, []);
