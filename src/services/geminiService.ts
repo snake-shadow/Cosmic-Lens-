@@ -375,7 +375,6 @@ export const checkApiConnection = async (): Promise<ConnectionResult> => {
   }
 
   try {
-    // Attempt a very cheap generation to verify key validity and quota
     await ai.models.generateContent({
       model: modelName,
       contents: "ping",
@@ -406,7 +405,6 @@ export const checkApiConnection = async (): Promise<ConnectionResult> => {
 export const fetchCelestialInfo = async (
   query: string
 ): Promise<CelestialData> => {
-  // 1. Fallback to Procedural Mock Data if no API client is present
   if (!ai) {
     await simulateDelay();
 
@@ -433,7 +431,6 @@ export const fetchCelestialInfo = async (
     return generateProceduralData(query);
   }
 
-  // 2. Real API Call
   try {
     const response = await ai.models.generateContent({
       model: modelName,
