@@ -20,29 +20,21 @@ const App: React.FC = () => {
 
   useEffect(() => {
     const init = async () => {
-      try {
-        const status = await checkApiConnection();
-        if (status.success) {
-          setConnectionStatus('SYSTEM ONLINE');
-          setIsSimulated(false);
-        } else {
-          console.warn("API Connection issue, switching to simulation:", status.message);
-          setConnectionStatus('SIMULATION MODE');
-          setIsSimulated(true);
-        }
-
-        const nodes = await Promise.race([
-          fetchInterestingNodes(),
-          new Promise<GraphNode[]>(resolve => setTimeout(() => resolve([]), 3000))
-        ]);
-        setGraphNodes(nodes);
-      } catch (error) {
-        console.warn('Graph load failed, using empty graph:', error);
+      // 1. Check Connection
+      const status = await checkApiConnection();
+      
+      if (status.success) {
+        setConnectionStatus('ONLINE');
+        setIsSimulated(false);
+      } else {
         setConnectionStatus('SIMULATION MODE');
-        setGraphNodes([]);
-      } finally {
-        setGraphLoading(false);
+        setIsSimulated(true);
       }
+
+      // 2. Fetch Nodes
+      const nodes = await fetchInterestingNodes();
+      setGraphNodes(nodes);
+      setGraphLoading(false);
     };
     init();
   }, []);
@@ -69,7 +61,7 @@ const App: React.FC = () => {
              type: data.type,
              x: data.coordinates.x,
              y: data.coordinates.y,
-             z: 30, 
+             z: 35, // Highlight size
              color: data.type.toLowerCase().includes('pulsar') ? '#00ff9d' : '#00f3ff',
              description: data.description,
              distance: data.distance
@@ -85,89 +77,36 @@ const App: React.FC = () => {
   };
 
   return (
-    <div style={{
-      position: 'relative',
-      width: '100vw',
-      height: '100vh',
-      overflow: 'hidden',
-      background: '#050508'
-    }}>
+    <div className="relative w-screen h-screen overflow-hidden bg-space-900 selection:bg-neon-pink selection:text-white scanlines font-display">
       <Background />
       
-      {/* LAYER 1: UNIVERSE (Z-0) */}
-      <div style={{ position: 'absolute', inset: 0, zIndex: 0 }}>
+      {/* LAYER 1: INTERACTIVE UNIVERSE (Z-0) */}
+      <div className="absolute inset-0 z-0 flex items-center justify-center">
          {graphLoading ? (
-            <div style={{
-              width: '100%',
-              height: '100%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              flexDirection: 'column'
-            }}>
-               <div style={{
-                 width: '64px',
-                 height: '64px',
-                 border: '4px solid #00f3ff',
-                 borderTopColor: 'transparent',
-                 borderRadius: '50%',
-                 animation: 'spin 1s linear infinite',
-                 boxShadow: '0 0 30px rgba(0,243,255,0.4)'
-               }}></div>
-               <p style={{
-                 marginTop: '24px',
-                 fontSize: '14px',
-                 letterSpacing: '0.3em',
-                 color: '#00f3ff',
-                 animation: 'pulse 2s infinite',
-                 textTransform: 'uppercase',
-                 fontWeight: 'bold'
-               }}>Initializing Cosmic Engine...</p>
+            <div className="flex flex-col items-center justify-center pointer-events-none">
+               <div className="w-20 h-20 border-4 border-neon-blue border-t-transparent rounded-full animate-spin shadow-[0_0_30px_rgba(0,243,255,0.4)]"></div>
+               <p className="mt-8 font-display text-sm tracking-[0.4em] text-neon-blue animate-pulse uppercase">Initializing Stellar Cartography...</p>
             </div>
          ) : (
-            <CosmicGraph 
-              data={graphNodes} 
-              onNodeClick={handleNodeClick}
-              onNodeHover={setHoveredNode} 
-            />
+            <div className="w-full h-full animate-enter">
+               <CosmicGraph 
+                  data={graphNodes} 
+                  onNodeClick={handleNodeClick}
+                  onNodeHover={setHoveredNode} 
+               />
+            </div>
          )}
       </div>
 
       {/* LAYER 2: UI OVERLAYS (Z-20+) */}
       
-      {/* Top Left: Logo - INLINE STYLES */}
-      <div style={{
-        position: 'absolute',
-        top: '24px',
-        left: '24px',
-        zIndex: 20,
-        pointerEvents: 'none',
-        userSelect: 'none'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-           <div style={{
-             position: 'relative',
-             width: '48px',
-             height: '48px',
-             display: 'flex',
-             alignItems: 'center',
-             justifyContent: 'center'
-           }}>
-              <div style={{
-                position: 'absolute',
-                width: '100%',
-                height: '100%',
-                background: '#00f3ff',
-                opacity: 0.2,
-                filter: 'blur(20px)',
-                borderRadius: '50%',
-                animation: 'pulse 2s infinite'
-              }}></div>
-              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" style={{
-                position: 'relative',
-                zIndex: 10,
-                filter: 'drop-shadow(0 0 8px rgba(0,243,255,0.8))'
-              }}>
+      {/* Top Left: Logo & Status */}
+      <div className="absolute top-6 left-6 z-20 pointer-events-none select-none">
+        <div className="flex items-center gap-4">
+           {/* Logo Icon */}
+           <div className="relative w-12 h-12 flex items-center justify-center group">
+              <div className="absolute w-full h-full bg-neon-blue/20 blur-xl rounded-full animate-pulse"></div>
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" className="relative z-10 gemini-sparkle filter drop-shadow-[0_0_8px_rgba(0,243,255,0.8)]">
                 <path d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z" fill="url(#logo-gradient)" />
                 <defs>
                   <linearGradient id="logo-gradient" x1="0" y1="0" x2="24" y2="24" gradientUnits="userSpaceOnUse">
@@ -179,35 +118,13 @@ const App: React.FC = () => {
            </div>
            
            <div>
-             <h1 style={{
-               fontFamily: '"Space Grotesk", sans-serif',
-               fontWeight: 'bold',
-               fontSize: '48px',
-               letterSpacing: '-0.05em',
-               lineHeight: 1,
-               display: 'flex',
-               flexDirection: 'column'
-             }}>
-                <span style={{ color: '#00f3ff', textShadow: '0 0 10px rgba(0, 243, 255, 0.6)' }}>COSMIC</span>
-                <span style={{ color: '#ffffff', fontWeight: 300 }}>LENS</span>
+             <h1 className="font-bold text-3xl tracking-wide leading-none flex flex-col sm:block drop-shadow-lg">
+                <span className="text-neon-blue mr-2">COSMIC</span>
+                <span className="text-white font-light">LENS</span>
              </h1>
-             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
-                <span style={{
-                  width: '8px',
-                  height: '8px',
-                  borderRadius: '50%',
-                  boxShadow: '0 0 8px currentColor',
-                  animation: 'pulse 2s infinite',
-                  backgroundColor: isSimulated ? '#facc15' : '#00ff9d'
-                }}></span>
-                <span style={{
-                  fontSize: '10px',
-                  fontWeight: 'bold',
-                  letterSpacing: '0.2em',
-                  textTransform: 'uppercase',
-                  opacity: 0.9,
-                  color: isSimulated ? '#facc15' : '#00ff9d'
-                }}>
+             <div className="flex items-center gap-2 mt-1">
+                <span className={`w-1.5 h-1.5 rounded-full shadow-[0_0_8px_currentColor] animate-pulse ${isSimulated ? 'bg-yellow-400' : 'bg-neon-green'}`}></span>
+                <span className={`text-[10px] font-bold tracking-[0.2em] uppercase opacity-90 ${isSimulated ? 'text-yellow-400' : 'text-neon-green'}`}>
                   {connectionStatus}
                 </span>
              </div>
@@ -215,67 +132,28 @@ const App: React.FC = () => {
         </div>
       </div>
 
-      {/* Right: HUD */}
-      <div style={{
-        position: 'absolute',
-        top: '112px',
-        right: '24px',
-        bottom: '128px',
-        zIndex: 20,
-        width: '320px',
-        pointerEvents: 'none',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'flex-start'
-      }}>
+      {/* Top Right: Version Badge */}
+      <div className="absolute top-6 right-6 z-20 hidden md:flex items-center gap-3 pointer-events-none">
+         <div className="glass-panel-neon px-4 py-2 rounded-full flex items-center gap-3 bg-black/40">
+            <span className="w-1.5 h-1.5 rounded-full bg-neon-purple animate-pulse"></span>
+            <span className="text-xs font-bold text-white tracking-widest font-display opacity-80">
+               {isSimulated ? 'SIMULATION V2.1' : 'LIVE UPLINK V2.1'}
+            </span>
+         </div>
+      </div>
+
+      {/* Right: HUD Panel */}
+      <div className="absolute top-28 right-6 bottom-32 z-20 w-80 pointer-events-none flex flex-col justify-start">
          <HUD node={hoveredNode} status={connectionStatus} />
       </div>
 
-      {/* Bottom: Omnibar - INLINE GLASS EFFECT */}
-      <div style={{
-        position: 'absolute',
-        bottom: '40px',
-        left: 0,
-        right: 0,
-        zIndex: 30,
-        display: 'flex',
-        justifyContent: 'center',
-        padding: '0 16px',
-        pointerEvents: 'none'
-      }}>
-        <form onSubmit={handleSearch} style={{
-          width: '100%',
-          maxWidth: '672px',
-          pointerEvents: 'auto',
-          transform: 'translateY(0)',
-          transition: 'transform 0.3s'
-        }} onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-4px)'} 
-           onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}>
-           <div style={{
-             background: 'rgba(255,255,255,0.05)',
-             backdropFilter: 'blur(20px)',
-             border: '1px solid rgba(0,243,255,0.2)',
-             borderRadius: '50px',
-             padding: '8px',
-             display: 'flex',
-             alignItems: 'center',
-             position: 'relative',
-             transition: 'all 0.3s'
-           }}>
+      {/* Bottom: Search Omnibar */}
+      <div className="absolute bottom-8 left-0 right-0 z-30 flex flex-col items-center px-4 pointer-events-none gap-3">
+        <form onSubmit={handleSearch} className="w-full max-w-2xl pointer-events-auto transform transition-transform duration-300 hover:-translate-y-1">
+           <div className="glass-panel-neon rounded-full p-1.5 flex items-center relative group transition-all duration-300 focus-within:ring-1 focus-within:ring-neon-blue/50">
               
-              <div style={{
-                position: 'relative',
-                width: '48px',
-                height: '48px',
-                borderRadius: '50%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                background: 'rgba(0,243,255,0.1)',
-                color: '#00f3ff',
-                transition: 'all 0.3s'
-              }}>
-                 <Sparkles size={20} style={{ filter: 'drop-shadow(0 0 5px currentColor)' }} />
+              <div className="relative w-12 h-12 rounded-full flex items-center justify-center text-neon-blue">
+                 <Sparkles size={20} className="filter drop-shadow-[0_0_5px_currentColor]" />
               </div>
               
               <input 
@@ -283,55 +161,22 @@ const App: React.FC = () => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Ask the Universe... (e.g. 'Show me a Quasar')" 
-                style={{
-                  flex: 1,
-                  background: 'transparent',
-                  border: 'none',
-                  color: 'white',
-                  fontSize: '20px',
-                  padding: '0 16px',
-                  outline: 'none',
-                  fontFamily: 'sans-serif'
-                }}
+                className="relative flex-1 bg-transparent border-none text-white text-lg px-2 focus:ring-0 focus:outline-none font-mono placeholder-gray-500 h-12 tracking-wide"
               />
               
               <button 
                 type="submit"
                 disabled={!searchQuery.trim()}
-                style={{
-                  position: 'relative',
-                  width: '48px',
-                  height: '48px',
-                  borderRadius: '50%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  transition: 'all 0.3s',
-                  background: searchQuery.trim() ? 
-                    'linear-gradient(135deg, #00f3ff, #00ff9d)' : 
-                    'rgba(255,255,255,0.05)',
-                  color: searchQuery.trim() ? 'black' : '#9ca3af',
-                  opacity: searchQuery.trim() ? 1 : 0.5,
-                  transform: searchQuery.trim() ? 'rotate(0deg)' : 'rotate(-90deg)'
-                }}
+                className={`relative w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${searchQuery.trim() ? 'bg-neon-blue text-black shadow-[0_0_20px_rgba(0,243,255,0.4)] rotate-0 opacity-100' : 'bg-white/5 text-gray-500 -rotate-90 opacity-50'}`}
               >
                 {searchQuery.trim() ? <SendHorizontal size={20} fill="currentColor" /> : <Zap size={20} />}
               </button>
            </div>
-           
-           <div style={{ textAlign: 'center', marginTop: '16px' }}>
-              <p style={{
-                fontSize: '10px',
-                color: '#00f3ff',
-                fontWeight: 'bold',
-                letterSpacing: '0.2em',
-                textTransform: 'uppercase',
-                opacity: 0.8
-              }}>
-                 {isSimulated ? 'Using Neural Simulation Database' : 'Powered by Gemini 2.5 Flash'}
-              </p>
-           </div>
         </form>
+
+        <p className="text-[10px] text-neon-blue font-bold tracking-[0.2em] uppercase opacity-60 font-display animate-pulse pointer-events-none">
+            {isSimulated ? 'Using Neural Simulation Database' : 'Powered by Gemini 2.5 Flash'}
+        </p>
       </div>
 
       {isPanelOpen && (

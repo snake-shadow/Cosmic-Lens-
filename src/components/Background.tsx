@@ -11,82 +11,75 @@ const Background: React.FC = () => {
 
     let width = window.innerWidth;
     let height = window.innerHeight;
-    
-    const resize = () => {
-      width = window.innerWidth;
-      height = window.innerHeight;
-      canvas.width = width;
-      canvas.height = height;
-    };
-    window.addEventListener('resize', resize);
-    resize();
+    canvas.width = width;
+    canvas.height = height;
 
-    // 1. STARS
-    const stars: { x: number; y: number; size: number; alpha: number; speed: number }[] = [];
-    for (let i = 0; i < 150; i++) {
+    // Increased star count and added type for diamonds
+    const stars: { x: number; y: number; radius: number; alpha: number; velocity: number; type: 'circle' | 'diamond' }[] = [];
+    const starCount = 800; // Increased to hundreds of stars
+
+    for (let i = 0; i < starCount; i++) {
       stars.push({
         x: Math.random() * width,
         y: Math.random() * height,
-        size: Math.random() * 2 + 0.5,
+        radius: Math.random() * 1.5,
         alpha: Math.random(),
-        speed: Math.random() * 0.2 + 0.05
+        velocity: Math.random() * 0.05 + 0.01,
+        type: Math.random() > 0.85 ? 'diamond' : 'circle' // 15% chance to be a diamond sparkle
       });
     }
 
-    // 2. NEBULA CLOUDS (Large moving gradients)
-    const nebulas = [
-      { x: width * 0.2, y: height * 0.3, r: 400, color: 'rgba(0, 243, 255, 0.08)', vx: 0.1, vy: 0.05 }, // Blue
-      { x: width * 0.8, y: height * 0.7, r: 500, color: 'rgba(188, 19, 254, 0.06)', vx: -0.1, vy: -0.05 }, // Purple
-      { x: width * 0.5, y: height * 0.5, r: 600, color: 'rgba(0, 255, 157, 0.04)', vx: 0.05, vy: -0.02 }, // Green
-    ];
-
     const animate = () => {
-      ctx.fillStyle = '#050508'; // Deep dark background
+      ctx.clearRect(0, 0, width, height);
+      // Create deep space gradient
+      const gradient = ctx.createRadialGradient(width / 2, height / 2, 0, width / 2, height / 2, width);
+      gradient.addColorStop(0, '#0b0d17');
+      gradient.addColorStop(1, '#020205');
+      ctx.fillStyle = gradient;
       ctx.fillRect(0, 0, width, height);
 
-      // Draw Nebulas
-      nebulas.forEach(neb => {
-        neb.x += neb.vx;
-        neb.y += neb.vy;
-        
-        // Bounce off edges (softly)
-        if (neb.x < -200 || neb.x > width + 200) neb.vx *= -1;
-        if (neb.y < -200 || neb.y > height + 200) neb.vy *= -1;
-
-        const g = ctx.createRadialGradient(neb.x, neb.y, 0, neb.x, neb.y, neb.r);
-        g.addColorStop(0, neb.color);
-        g.addColorStop(1, 'transparent');
-        ctx.fillStyle = g;
-        ctx.beginPath();
-        ctx.arc(neb.x, neb.y, neb.r, 0, Math.PI * 2);
-        ctx.fill();
-      });
-
-      // Draw Stars
       stars.forEach(star => {
-        star.y -= star.speed;
-        if (star.y < 0) star.y = height;
-
         ctx.beginPath();
-        ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(255, 255, 255, ${star.alpha})`;
-        ctx.fill();
-        
-        // Twinkle
-        if (Math.random() > 0.95) {
-          star.alpha = Math.random() * 0.8 + 0.2;
+        if (star.type === 'diamond') {
+          // Draw diamond/star sparkle shape
+          const r = star.radius * 2; // Slightly larger for sparkle effect
+          ctx.moveTo(star.x, star.y - r);
+          ctx.lineTo(star.x + r * 0.7, star.y);
+          ctx.lineTo(star.x, star.y + r);
+          ctx.lineTo(star.x - r * 0.7, star.y);
+          ctx.closePath();
+        } else {
+          ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
         }
+
+        // Diamond shapes twinkle more intensely
+        const alphaMultiplier = star.type === 'diamond' ? 1.5 : 1;
+        ctx.fillStyle = `rgba(255, 255, 255, ${Math.min(star.alpha * alphaMultiplier, 1)})`;
+        ctx.fill();
+
+        // Twinkle logic
+        star.alpha += (Math.random() - 0.5) * 0.02;
+        if (star.alpha < 0) star.alpha = 0;
+        if (star.alpha > 1) star.alpha = 1;
+
+        star.y -= star.velocity;
+        if (star.y < 0) star.y = height;
       });
 
       requestAnimationFrame(animate);
     };
 
-    const animId = requestAnimationFrame(animate);
+    animate();
 
-    return () => {
-      window.removeEventListener('resize', resize);
-      cancelAnimationFrame(animId);
+    const handleResize = () => {
+      width = window.innerWidth;
+      height = window.innerHeight;
+      canvas.width = width;
+      canvas.height = height;
     };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   return (
