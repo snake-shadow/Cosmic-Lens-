@@ -71,8 +71,8 @@ const MOCK_NODES: GraphNode[] = [
   { name: "Large Magellanic Cloud", type: "Galaxy", x: 70, y: 25, z: 55, color: "#FF69B4", distance: "163k LY", description: "A satellite galaxy of the Milky Way." }
 ];
 
-// Clean the key: remove quotes if present, trim whitespace
-const rawApiKey = process.env.API_KEY;
+// Clean the key: read from Vite env and normalize
+const rawApiKey = import.meta.env.VITE_GEMINI_API_KEY;
 const apiKey = rawApiKey ? rawApiKey.replace(/["']/g, "").trim() : "";
 let ai: GoogleGenAI | null = null;
 
