@@ -27,7 +27,8 @@ const App: React.FC = () => {
         setConnectionStatus('ONLINE');
         setIsSimulated(false);
       } else {
-        setConnectionStatus('SIMULATION MODE');
+        // SHOW THE ACTUAL ERROR REASON (e.g. "KEY REJECTED", "QUOTA EXCEEDED")
+        setConnectionStatus(status.message);
         setIsSimulated(true);
       }
 

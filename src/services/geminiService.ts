@@ -1,6 +1,12 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { CelestialData, GraphNode } from "../types";
 
+// =======================================================================
+// 🔑 API KEY CONFIGURATION
+// Use this variable if you want to hardcode the key (overrides environment variables)
+const HARDCODED_API_KEY = ""; 
+// =======================================================================
+
 // --- PROCEDURAL GENERATION HELPERS (The "Infinite" Engine) ---
 const hashCode = (str: string) => {
   let hash = 0;
@@ -81,16 +87,25 @@ const MOCK_NODES: GraphNode[] = [
 
 // Helper to reliably find the API key in various environments
 const getApiKey = () => {
-  // Check process.env (injected by Vite define)
+  // 1. Check Hardcoded var first
+  if (HARDCODED_API_KEY) return HARDCODED_API_KEY.replace(/["']/g, "").trim();
+
+  // 2. Check process.env (injected by Vite define)
   if (typeof process !== 'undefined' && process.env && process.env.API_KEY) {
-    return process.env.API_KEY.replace(/["']/g, "").trim();
+    return (process.env.API_KEY as string).replace(/["']/g, "").trim();
   }
-  // Check import.meta.env (Vite native)
-  // @ts-ignore
-  if (typeof import.meta !== 'undefined' && import.meta.env) {
+  // 3. Check import.meta.env (Vite native)
+  try {
     // @ts-ignore
-    const viteKey = import.meta.env.VITE_API_KEY || import.meta.env.API_KEY;
-    if (viteKey) return viteKey.replace(/["']/g, "").trim();
+    if (typeof import.meta !== 'undefined' && import.meta.env) {
+      // @ts-ignore
+      const viteKey = import.meta.env.VITE_API_KEY || import.meta.env.API_KEY;
+      if (viteKey && typeof viteKey === 'string') {
+        return viteKey.replace(/["']/g, "").trim();
+      }
+    }
+  } catch (e) {
+    // ignore
   }
   return "";
 };
