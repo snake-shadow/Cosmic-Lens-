@@ -1,6 +1,7 @@
 import React from 'react';
 import { ScatterChart, Scatter, XAxis, YAxis, ZAxis, ResponsiveContainer, Cell, Tooltip } from 'recharts';
 import { GraphNode } from '../types';
+import { Search } from 'lucide-react';
 
 interface CosmicGraphProps {
   data: GraphNode[];
@@ -91,6 +92,13 @@ const CosmicGraph: React.FC<CosmicGraphProps> = ({ data, onNodeClick, onNodeHove
              opacity: 0.5
            }}>
       </div>
+      
+      <div className="absolute top-4 left-4 z-10 pointer-events-none opacity-60">
+        <h3 className="font-display text-white text-xs tracking-widest flex items-center gap-2">
+            <Search size={14} className="text-cyan-400"/>
+            SECTOR SCAN: DEEP FIELD
+        </h3>
+      </div>
 
       <div className="absolute inset-0 z-0 py-12 px-4">
         {/* Intermediate wrapper div to ensure ResponsiveContainer has a robust layout context */}
@@ -102,7 +110,7 @@ const CosmicGraph: React.FC<CosmicGraphProps> = ({ data, onNodeClick, onNodeHove
               <YAxis type="number" dataKey="y" hide domain={[-5, 105]} />
               <ZAxis type="number" dataKey="z" range={[80, 800]} />
               
-              <Tooltip content={() => null} cursor={{ strokeDasharray: '4 4', stroke: 'rgba(0, 243, 255, 0.3)', strokeWidth: 1 }} />
+              <Tooltip content={() => null} cursor={{ strokeDasharray: '4 4', stroke: 'rgba(34, 211, 238, 0.3)', strokeWidth: 1 }} />
               
               <Scatter 
                 name="Cosmic Objects" 

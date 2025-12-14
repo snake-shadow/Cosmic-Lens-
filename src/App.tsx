@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Sparkles, SendHorizontal, Zap } from 'lucide-react';
+import { Sparkles, SendHorizontal, Zap, Rocket } from 'lucide-react';
 import Background from './components/Background';
 import CosmicGraph from './components/CosmicGraph';
 import InfoPanel from './components/InfoPanel';
@@ -77,15 +77,15 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="relative w-screen h-screen overflow-hidden bg-space-900 selection:bg-neon-pink selection:text-white scanlines font-display">
+    <div className="relative w-screen h-screen overflow-hidden bg-space-900 selection:bg-pink-500 selection:text-white scanlines font-display">
       <Background />
       
       {/* LAYER 1: INTERACTIVE UNIVERSE (Z-0) */}
       <div className="absolute inset-0 z-0 flex items-center justify-center">
          {graphLoading ? (
             <div className="flex flex-col items-center justify-center pointer-events-none">
-               <div className="w-20 h-20 border-4 border-neon-blue border-t-transparent rounded-full animate-spin shadow-[0_0_30px_rgba(0,243,255,0.4)]"></div>
-               <p className="mt-8 font-display text-sm tracking-[0.4em] text-neon-blue animate-pulse uppercase">Initializing Stellar Cartography...</p>
+               <div className="w-20 h-20 border-4 border-cyan-400 border-t-transparent rounded-full animate-spin shadow-[0_0_30px_rgba(34,211,238,0.4)]"></div>
+               <p className="mt-8 font-display text-sm tracking-[0.4em] text-cyan-400 animate-pulse uppercase">Initializing Stellar Cartography...</p>
             </div>
          ) : (
             <div className="w-full h-full animate-enter">
@@ -104,27 +104,17 @@ const App: React.FC = () => {
       <div className="absolute top-6 left-6 z-20 pointer-events-none select-none">
         <div className="flex items-center gap-4">
            {/* Logo Icon */}
-           <div className="relative w-12 h-12 flex items-center justify-center group">
-              <div className="absolute w-full h-full bg-neon-blue/20 blur-xl rounded-full animate-pulse"></div>
-              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" className="relative z-10 gemini-sparkle filter drop-shadow-[0_0_8px_rgba(0,243,255,0.8)]">
-                <path d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z" fill="url(#logo-gradient)" />
-                <defs>
-                  <linearGradient id="logo-gradient" x1="0" y1="0" x2="24" y2="24" gradientUnits="userSpaceOnUse">
-                    <stop stopColor="#00f3ff" />
-                    <stop offset="1" stopColor="#00ff9d" />
-                  </linearGradient>
-                </defs>
-              </svg>
+           <div className="bg-cyan-900/30 p-2.5 rounded-xl border border-cyan-500/30 backdrop-blur-md shadow-[0_0_15px_rgba(6,182,212,0.2)]">
+               <Rocket className="text-cyan-400 drop-shadow-[0_0_8px_rgba(34,211,238,0.8)]" size={28} />
            </div>
            
            <div>
-             <h1 className="font-bold text-3xl tracking-wide leading-none flex flex-col sm:block drop-shadow-lg">
-                <span className="text-neon-blue mr-2">COSMIC</span>
-                <span className="text-white font-light">LENS</span>
+             <h1 className="font-bold text-3xl tracking-wide leading-none flex flex-col sm:block drop-shadow-lg font-display">
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-white to-fuchsia-500">COSMIC LENS</span>
              </h1>
              <div className="flex items-center gap-2 mt-1">
-                <span className={`w-1.5 h-1.5 rounded-full shadow-[0_0_8px_currentColor] animate-pulse ${isSimulated ? 'bg-yellow-400' : 'bg-neon-green'}`}></span>
-                <span className={`text-[10px] font-bold tracking-[0.2em] uppercase opacity-90 ${isSimulated ? 'text-yellow-400' : 'text-neon-green'}`}>
+                <span className={`w-1.5 h-1.5 rounded-full shadow-[0_0_8px_currentColor] animate-pulse ${isSimulated ? 'bg-yellow-400' : 'bg-emerald-400'}`}></span>
+                <span className={`text-[10px] font-bold tracking-[0.2em] uppercase opacity-90 font-mono ${isSimulated ? 'text-yellow-400' : 'text-emerald-400'}`}>
                   {connectionStatus}
                 </span>
              </div>
@@ -134,8 +124,8 @@ const App: React.FC = () => {
 
       {/* Top Right: Version Badge */}
       <div className="absolute top-6 right-6 z-20 hidden md:flex items-center gap-3 pointer-events-none">
-         <div className="glass-panel-neon px-4 py-2 rounded-full flex items-center gap-3 bg-black/40">
-            <span className="w-1.5 h-1.5 rounded-full bg-neon-purple animate-pulse"></span>
+         <div className="glass-panel-neon px-4 py-2 rounded-full flex items-center gap-3 bg-black/40 border-white/10">
+            <span className="w-1.5 h-1.5 rounded-full bg-fuchsia-500 animate-pulse"></span>
             <span className="text-xs font-bold text-white tracking-widest font-display opacity-80">
                {isSimulated ? 'SIMULATION V2.1' : 'LIVE UPLINK V2.1'}
             </span>
@@ -150,9 +140,9 @@ const App: React.FC = () => {
       {/* Bottom: Search Omnibar */}
       <div className="absolute bottom-8 left-0 right-0 z-30 flex flex-col items-center px-4 pointer-events-none gap-3">
         <form onSubmit={handleSearch} className="w-full max-w-2xl pointer-events-auto transform transition-transform duration-300 hover:-translate-y-1">
-           <div className="glass-panel-neon rounded-full p-1.5 flex items-center relative group transition-all duration-300 focus-within:ring-1 focus-within:ring-neon-blue/50">
+           <div className="glass-panel-neon rounded-full p-1.5 flex items-center relative group transition-all duration-300 focus-within:ring-1 focus-within:ring-cyan-400/50 bg-black/60">
               
-              <div className="relative w-12 h-12 rounded-full flex items-center justify-center text-neon-blue">
+              <div className="relative w-12 h-12 rounded-full flex items-center justify-center text-cyan-400">
                  <Sparkles size={20} className="filter drop-shadow-[0_0_5px_currentColor]" />
               </div>
               
@@ -167,14 +157,14 @@ const App: React.FC = () => {
               <button 
                 type="submit"
                 disabled={!searchQuery.trim()}
-                className={`relative w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${searchQuery.trim() ? 'bg-neon-blue text-black shadow-[0_0_20px_rgba(0,243,255,0.4)] rotate-0 opacity-100' : 'bg-white/5 text-gray-500 -rotate-90 opacity-50'}`}
+                className={`relative w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${searchQuery.trim() ? 'bg-cyan-400 text-black shadow-[0_0_20px_rgba(34,211,238,0.4)] rotate-0 opacity-100' : 'bg-white/5 text-gray-500 -rotate-90 opacity-50'}`}
               >
                 {searchQuery.trim() ? <SendHorizontal size={20} fill="currentColor" /> : <Zap size={20} />}
               </button>
            </div>
         </form>
 
-        <p className="text-[10px] text-neon-blue font-bold tracking-[0.2em] uppercase opacity-60 font-display animate-pulse pointer-events-none">
+        <p className="text-[10px] text-cyan-400 font-bold tracking-[0.2em] uppercase opacity-60 font-display animate-pulse pointer-events-none">
             {isSimulated ? 'Using Neural Simulation Database' : 'Powered by Gemini 2.5 Flash'}
         </p>
       </div>
