@@ -51,7 +51,6 @@ const generateProceduralData = (name: string): CelestialData => {
 };
 
 // --- MOCK DATA ---
-// Spread across 0-100 x/y to prevent clustering
 const MOCK_NODES: GraphNode[] = [
   { name: "Betelgeuse", type: "Red Supergiant", x: 15, y: 85, z: 40, color: "#ff4500", distance: "642 LY", description: "A red supergiant nearing the end of its life, expected to go supernova." },
   { name: "Sirius B", type: "White Dwarf", x: 5, y: 15, z: 15, color: "#ffffff", distance: "8.6 LY", description: "The faint white dwarf companion to the brightest star in the night sky." },
@@ -80,9 +79,23 @@ const MOCK_NODES: GraphNode[] = [
   { name: "Large Magellanic Cloud", type: "Galaxy", x: 70, y: 25, z: 55, color: "#FF69B4", distance: "163k LY", description: "A satellite galaxy of the Milky Way." }
 ];
 
-// Clean the key: remove quotes if present, trim whitespace
-const rawApiKey = process.env.API_KEY;
-const apiKey = rawApiKey ? rawApiKey.replace(/["']/g, "").trim() : "";
+// Helper to reliably find the API key in various environments
+const getApiKey = () => {
+  // Check process.env (injected by Vite define)
+  if (typeof process !== 'undefined' && process.env && process.env.API_KEY) {
+    return process.env.API_KEY.replace(/["']/g, "").trim();
+  }
+  // Check import.meta.env (Vite native)
+  // @ts-ignore
+  if (typeof import.meta !== 'undefined' && import.meta.env) {
+    // @ts-ignore
+    const viteKey = import.meta.env.VITE_API_KEY || import.meta.env.API_KEY;
+    if (viteKey) return viteKey.replace(/["']/g, "").trim();
+  }
+  return "";
+};
+
+const apiKey = getApiKey();
 let ai: GoogleGenAI | null = null;
 
 if (apiKey) {
@@ -103,7 +116,7 @@ export interface ConnectionResult {
 
 export const checkApiConnection = async (): Promise<ConnectionResult> => {
   if (!apiKey) {
-     console.log("App running in SIMULATION MODE (No API Key provided)");
+     // Key is missing, run in simulation mode quietly.
      return { success: false, message: "KEY MISSING" };
   }
   
