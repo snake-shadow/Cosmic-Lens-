@@ -2,8 +2,7 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { CelestialData } from "../types";
 
 // Initialize Gemini
-const API_KEY = import.meta.env.VITE_GEMINI_API_KEY || 'AIzaSyCeZqDwWJCUP3DZo7IzDV6vS1JhxHtbkYg';
-const ai = new GoogleGenAI({ apiKey: API_KEY });
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 const modelName = 'gemini-2.5-flash';
 

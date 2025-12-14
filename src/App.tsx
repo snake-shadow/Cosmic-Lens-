@@ -77,7 +77,7 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="relative w-screen h-screen overflow-hidden bg-space-900 selection:bg-pink-500 selection:text-white scanlines font-display">
+    <div className="relative w-screen h-screen overflow-hidden bg-[#050508] text-slate-200 selection:bg-fuchsia-500 selection:text-white scanlines font-display">
       <Background />
       
       {/* LAYER 1: INTERACTIVE UNIVERSE (Z-0) */}
@@ -104,7 +104,7 @@ const App: React.FC = () => {
       <div className="absolute top-6 left-6 z-20 pointer-events-none select-none">
         <div className="flex items-center gap-4">
            {/* Logo Icon */}
-           <div className="bg-cyan-900/30 p-2.5 rounded-xl border border-cyan-500/30 backdrop-blur-md shadow-[0_0_15px_rgba(6,182,212,0.2)]">
+           <div className="bg-cyan-950/40 p-2.5 rounded-xl border border-cyan-500/30 backdrop-blur-md shadow-[0_0_15px_rgba(6,182,212,0.2)]">
                <Rocket className="text-cyan-400 drop-shadow-[0_0_8px_rgba(34,211,238,0.8)]" size={28} />
            </div>
            
@@ -113,8 +113,8 @@ const App: React.FC = () => {
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-white to-fuchsia-500">COSMIC LENS</span>
              </h1>
              <div className="flex items-center gap-2 mt-1">
-                <span className={`w-1.5 h-1.5 rounded-full shadow-[0_0_8px_currentColor] animate-pulse ${isSimulated ? 'bg-yellow-400' : 'bg-emerald-400'}`}></span>
-                <span className={`text-[10px] font-bold tracking-[0.2em] uppercase opacity-90 font-mono ${isSimulated ? 'text-yellow-400' : 'text-emerald-400'}`}>
+                <span className={`w-1.5 h-1.5 rounded-full shadow-[0_0_8px_currentColor] animate-pulse ${isSimulated ? 'bg-amber-400' : 'bg-emerald-400'}`}></span>
+                <span className={`text-[10px] font-bold tracking-[0.2em] uppercase opacity-90 font-mono ${isSimulated ? 'text-amber-400' : 'text-emerald-400'}`}>
                   {connectionStatus}
                 </span>
              </div>
@@ -124,7 +124,7 @@ const App: React.FC = () => {
 
       {/* Top Right: Version Badge */}
       <div className="absolute top-6 right-6 z-20 hidden md:flex items-center gap-3 pointer-events-none">
-         <div className="glass-panel-neon px-4 py-2 rounded-full flex items-center gap-3 bg-black/40 border-white/10">
+         <div className="glass-panel-neon px-4 py-2 rounded-full flex items-center gap-3 bg-black/40 border border-white/10">
             <span className="w-1.5 h-1.5 rounded-full bg-fuchsia-500 animate-pulse"></span>
             <span className="text-xs font-bold text-white tracking-widest font-display opacity-80">
                {isSimulated ? 'SIMULATION V2.1' : 'LIVE UPLINK V2.1'}
@@ -151,7 +151,7 @@ const App: React.FC = () => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Ask the Universe... (e.g. 'Show me a Quasar')" 
-                className="relative flex-1 bg-transparent border-none text-white text-lg px-2 focus:ring-0 focus:outline-none font-mono placeholder-gray-500 h-12 tracking-wide"
+                className="relative flex-1 bg-transparent border-none text-white text-lg px-2 focus:ring-0 focus:outline-none font-mono placeholder-gray-400 h-12 tracking-wide"
               />
               
               <button 

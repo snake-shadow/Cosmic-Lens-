@@ -13,7 +13,7 @@ const InfoPanel: React.FC<InfoPanelProps> = ({ data, onClose, loading }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-sm transition-all animate-enter">
-      <div className={`relative w-full max-w-3xl glass-panel rounded-3xl overflow-hidden flex flex-col max-h-[90vh] shadow-2xl bg-space-900/90`}>
+      <div className={`relative w-full max-w-3xl glass-panel rounded-3xl overflow-hidden flex flex-col max-h-[90vh] shadow-2xl bg-[#0f111a]/90`}>
         
         {/* Header Area */}
         <div className="p-8 border-b border-white/5 bg-gradient-to-b from-white/[0.02] to-transparent">
@@ -28,7 +28,7 @@ const InfoPanel: React.FC<InfoPanelProps> = ({ data, onClose, loading }) => {
                       {data?.name}
                     </h2>
                     {data?.isSimulated && (
-                       <span className="bg-yellow-500/10 border border-yellow-500/20 px-2 py-0.5 rounded text-[10px] font-mono tracking-widest text-yellow-500 uppercase">
+                       <span className="bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded text-[10px] font-mono tracking-widest text-amber-500 uppercase">
                           Simulated Data
                        </span>
                     )}
@@ -70,7 +70,7 @@ const InfoPanel: React.FC<InfoPanelProps> = ({ data, onClose, loading }) => {
                   { label: "Distance", value: data.distance, icon: Ruler, color: "text-cyan-400" },
                   { label: "Mass", value: data.mass, icon: Weight, color: "text-fuchsia-400" },
                   { label: "Temp", value: data.temperature, icon: Thermometer, color: "text-rose-400" },
-                  { label: "Discovered", value: data.discoveryYear, icon: Globe, color: "text-yellow-400" },
+                  { label: "Discovered", value: data.discoveryYear, icon: Globe, color: "text-amber-400" },
                 ].map((stat, i) => (
                   <div key={i} className="bg-white/5 p-4 rounded-2xl border border-white/5 hover:border-white/10 transition-colors">
                     <div className={`flex items-center gap-2 ${stat.color} mb-2`}>
@@ -89,7 +89,7 @@ const InfoPanel: React.FC<InfoPanelProps> = ({ data, onClose, loading }) => {
                  <div className="absolute inset-0 bg-gradient-to-r from-fuchsia-900/20 to-cyan-900/20 opacity-50"></div>
                  <div className="relative p-6 bg-white/[0.02] backdrop-blur-sm">
                     <div className="flex items-center gap-2 mb-3">
-                       <Sparkles size={16} className="text-yellow-300" />
+                       <Sparkles size={16} className="text-amber-300" />
                        <h3 className="text-xs font-bold uppercase tracking-widest text-white/70 font-mono">Did you know?</h3>
                     </div>
                     <p className="text-white font-medium italic leading-relaxed font-sans">
